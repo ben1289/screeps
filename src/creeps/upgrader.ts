@@ -7,16 +7,16 @@ export default class Upgrader extends Creep {
 
   public run(): void {
     for (const upgrader of this.creeps) {
-      if (upgrader.memory.upgrading && upgrader.store[RESOURCE_ENERGY] === 0) {
-        upgrader.memory.upgrading = false;
-        upgrader.say('🔄 去挖矿');
+      if (upgrader.memory.working && upgrader.store[RESOURCE_ENERGY] === 0) {
+        upgrader.memory.working = false;
+        upgrader.say('⛏️ 去挖矿');
       }
-      if (!upgrader.memory.upgrading && upgrader.store.getFreeCapacity() === 0) {
-        upgrader.memory.upgrading = true;
+      if (!upgrader.memory.working && upgrader.store.getFreeCapacity() === 0) {
+        upgrader.memory.working = true;
         upgrader.say('⚡ 去升级');
       }
 
-      if (upgrader.memory.upgrading) {
+      if (upgrader.memory.working) {
         if (upgrader.upgradeController(this.room.controller as StructureController) === ERR_NOT_IN_RANGE) {
           upgrader.moveTo(this.room.controller as StructureController, { visualizePathStyle: { stroke: '#ffffff' } });
         }
