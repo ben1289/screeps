@@ -5,5 +5,5 @@ interface Memory {
 
 interface CreepMemory {
   role: string;
-  upgrading?: boolean;
+  working?: boolean;
 }
