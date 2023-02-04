@@ -1,6 +1,6 @@
 import { ErrorMapper } from 'utils/ErrorMapper';
 import Harvester from './creeps/harvester';
-import Upgrader from './creeps/upgrader';
+import Updater from './creeps/updater';
 import Builder from './creeps/builder';
 import Repairer from './creeps/repairer';
 
@@ -9,8 +9,8 @@ export const loop = ErrorMapper.wrapLoop(() => {
     const room = Game.rooms[roomsKey];
     const harvester = new Harvester(room);
     harvester.run();
-    const upgrader = new Upgrader(room);
-    upgrader.run();
+    const updater = new Updater(room);
+    updater.run();
     const builder = new Builder(room);
     builder.run();
     const repairer = new Repairer(room);
