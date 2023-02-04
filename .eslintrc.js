@@ -82,7 +82,7 @@ module.exports = {
     'one-var': ['error', 'never'],
     'quote-props': 'off',
     radix: 'error',
-    'sort-imports': 'warn',
+    'sort-imports': 'off',
     'spaced-comment': 'error'
   }
 };
