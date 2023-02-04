@@ -13,7 +13,7 @@ export default class Repairer extends Creep {
       }
       if (!repairer.memory.working && repairer.store.getFreeCapacity() === 0) {
         repairer.memory.working = true;
-        repairer.say('🧱 去建造');
+        repairer.say('🛠️ 去维修');
       }
 
       if (repairer.memory.working) {
