@@ -1,5 +1,8 @@
 import Creep from './creep';
 
+/**
+ * 维修者
+ */
 export default class Repairer extends Creep {
   public constructor(room: Room, maximum = 3) {
     super(room, 'repairer', undefined, maximum);

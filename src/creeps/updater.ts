@@ -1,5 +1,8 @@
 import Creep from './creep';
 
+/**
+ * 升级者
+ */
 export default class Updater extends Creep {
   public constructor(room: Room, maximum = 3) {
     super(room, 'updater', undefined, maximum);

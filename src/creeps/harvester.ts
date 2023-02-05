@@ -1,5 +1,8 @@
 import Creep from './creep';
 
+/**
+ * 采集者
+ */
 export default class Harvester extends Creep {
   public constructor(room: Room, maximum?: number) {
     super(room, 'harvester', undefined, maximum);
