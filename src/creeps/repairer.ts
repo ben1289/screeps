@@ -17,9 +17,13 @@ export default class Repairer extends Creep {
       }
 
       if (repairer.memory.working) {
-        const targets = this.room.find(FIND_STRUCTURES, {
+        let targets = this.room.find(FIND_STRUCTURES, {
           filter: (structure: Structure) => structure.hitsMax - structure.hits > 0
         });
+        // 将道路的优先级提高
+        const roads = targets.filter(structure => structure.structureType === STRUCTURE_ROAD);
+        targets = roads.length > 0 ? roads : targets;
+        targets.sort((pre, cur) => pre.hits - cur.hits);
 
         if (targets.length > 0) {
           // 如果有损坏的建筑 则去修理
