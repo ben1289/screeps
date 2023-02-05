@@ -29,16 +29,14 @@ export default class Creep {
         // 如果 creep 数量不足 则生成
         spawn.spawnCreep(body, `${role}_${Date.now()}`, { memory: { role } });
         spawn.spawning?.setDirections([TOP_RIGHT, RIGHT, BOTTOM_RIGHT, BOTTOM]);
-      } else {
-        // 如果 creep 数量充足 且存活时间小于200 tick 则去 spawn 续命
-        for (const creep of this.creeps) {
-          if (creep.ticksToLive && creep.ticksToLive < 200) {
-            if (spawn.renewCreep(creep) === ERR_NOT_IN_RANGE) {
-              creep.moveTo(spawn, { visualizePathStyle: { stroke: '#19ff00' } });
-            }
+      }
+      // 如果 creep 活时间小于200 tick 则去 spawn 续命
+      for (const creep of this.creeps) {
+        if (creep.ticksToLive && creep.ticksToLive < 200) {
+          if (spawn.renewCreep(creep) === ERR_NOT_IN_RANGE) {
+            creep.moveTo(spawn, { visualizePathStyle: { stroke: '#19ff00' } });
           }
         }
-        break;
       }
     }
   }
