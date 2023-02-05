@@ -34,12 +34,14 @@ export default class Builder extends Creep {
         }
       } else {
         const targets = this.room.find(FIND_STRUCTURES, {
-          filter: structure => structure.structureType === STRUCTURE_CONTAINER
+          filter: structure =>
+            structure.structureType === STRUCTURE_CONTAINER && structure.store.getCapacity(RESOURCE_ENERGY) > 0
         });
-        const withdrawResult = builder.withdraw(targets[0], RESOURCE_ENERGY);
-        if (withdrawResult === ERR_NOT_IN_RANGE) {
-          builder.moveTo(targets[0], { visualizePathStyle: { stroke: '#ffff00' } });
-        } else if (withdrawResult === ERR_NOT_ENOUGH_RESOURCES) {
+        if (targets.length > 0) {
+          if (builder.withdraw(targets[0], RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+            builder.moveTo(targets[0], { visualizePathStyle: { stroke: '#ffff00' } });
+          }
+        } else {
           const source = Game.getObjectById('5bbcae0a9099fc012e638590' as Id<_HasId>) as Source;
           if (builder.harvest(source) === ERR_NOT_IN_RANGE) {
             builder.moveTo(source, { visualizePathStyle: { stroke: '#ffff00' } });
