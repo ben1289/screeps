@@ -33,9 +33,17 @@ export default class Builder extends Creep {
           builder.moveTo(23, 18, { visualizePathStyle: { stroke: '#ffffff' } });
         }
       } else {
-        const source = Game.getObjectById('5bbcae0a9099fc012e63858f' as Id<_HasId>) as Source;
-        if (builder.harvest(source) === ERR_NOT_IN_RANGE) {
-          builder.moveTo(source, { visualizePathStyle: { stroke: '#ffff00' } });
+        const targets = this.room.find(FIND_STRUCTURES, {
+          filter: structure => structure.structureType === STRUCTURE_CONTAINER
+        });
+        const withdrawResult = builder.withdraw(targets[0], RESOURCE_ENERGY);
+        if (withdrawResult === ERR_NOT_IN_RANGE) {
+          builder.moveTo(targets[0], { visualizePathStyle: { stroke: '#ffff00' } });
+        } else if (withdrawResult === ERR_NOT_ENOUGH_RESOURCES) {
+          const source = Game.getObjectById('5bbcae0a9099fc012e638590' as Id<_HasId>) as Source;
+          if (builder.harvest(source) === ERR_NOT_IN_RANGE) {
+            builder.moveTo(source, { visualizePathStyle: { stroke: '#ffff00' } });
+          }
         }
       }
     }

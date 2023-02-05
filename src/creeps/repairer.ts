@@ -18,12 +18,10 @@ export default class Repairer extends Creep {
       }
 
       if (repairer.memory.working) {
-        let targets = this.room.find(FIND_STRUCTURES, {
-          filter: (structure: Structure) => structure.hitsMax - structure.hits > 0
+        const targets = this.room.find(FIND_STRUCTURES, {
+          filter: (structure: Structure) =>
+            structure.structureType !== STRUCTURE_WALL && structure.hitsMax - structure.hits > 0
         });
-        // 将道路的优先级提高
-        const roads = targets.filter(structure => structure.structureType === STRUCTURE_ROAD);
-        targets = roads.length > 0 ? roads : targets;
         targets.sort((pre, cur) => pre.hits - cur.hits);
 
         if (targets.length > 0) {
@@ -36,9 +34,17 @@ export default class Repairer extends Creep {
           repairer.moveTo(27, 24);
         }
       } else {
-        const source = Game.getObjectById('5bbcae0a9099fc012e638590' as Id<_HasId>) as Source;
-        if (repairer.harvest(source) === ERR_NOT_IN_RANGE) {
-          repairer.moveTo(source, { visualizePathStyle: { stroke: '#ffff00' } });
+        const targets = this.room.find(FIND_STRUCTURES, {
+          filter: structure => structure.structureType === STRUCTURE_CONTAINER
+        });
+        const withdrawResult = repairer.withdraw(targets[0], RESOURCE_ENERGY);
+        if (withdrawResult === ERR_NOT_IN_RANGE) {
+          repairer.moveTo(targets[0], { visualizePathStyle: { stroke: '#ffff00' } });
+        } else if (withdrawResult === ERR_NOT_ENOUGH_RESOURCES) {
+          const source = Game.getObjectById('5bbcae0a9099fc012e63858f' as Id<_HasId>) as Source;
+          if (repairer.harvest(source) === ERR_NOT_IN_RANGE) {
+            repairer.moveTo(source, { visualizePathStyle: { stroke: '#ffff00' } });
+          }
         }
       }
     }
