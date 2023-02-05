@@ -1,4 +1,4 @@
-export default class Creep {
+export default class CreepClass {
   protected room;
   protected spawns;
   protected readonly creeps;
@@ -27,17 +27,45 @@ export default class Creep {
     for (const spawn of this.spawns) {
       if (this.creeps.length < maximum) {
         // 如果 creep 数量不足 则生成
-        spawn.spawnCreep(body, `${role}_${Date.now()}`, { memory: { role } });
+        spawn.spawnCreep(body, `${role}_${Date.now()}`, { memory: { role, level: this.room.controller?.level ?? 0 } });
         spawn.spawning?.setDirections([TOP_RIGHT, RIGHT, BOTTOM_RIGHT, BOTTOM]);
+      } else {
+        break;
       }
-      // 如果 creep 活时间小于200 tick 则去 spawn 续命
-      for (const creep of this.creeps) {
-        if (creep.ticksToLive && creep.ticksToLive < 200) {
-          if (spawn.renewCreep(creep) === ERR_NOT_IN_RANGE) {
-            creep.moveTo(spawn, { visualizePathStyle: { stroke: '#19ff00' } });
-          }
-        }
+    }
+  }
+
+  /**
+   * 续命
+   * @protected
+   */
+  protected renewTick(creep: Creep): boolean {
+    if (creep.memory.level !== this.room.controller?.level) {
+      creep.memory.needRenew = false;
+    } else if (creep.ticksToLive && creep.ticksToLive < 200) {
+      creep.memory.needRenew = true;
+    } else if (creep.ticksToLive && creep.ticksToLive > 1400) {
+      creep.memory.needRenew = false;
+    }
+
+    if (creep.memory.needRenew === true) {
+      // 求出最近路径的 spawn
+      const spawnIndex = this.spawns
+        .map((spawn, index) => ({ steps: spawn.room.findPath(creep.pos, spawn.pos), index }))
+        .sort((pre, cur) => pre.steps.length - cur.steps.length)?.[0].index;
+      const bestSpawn = this.spawns[spawnIndex];
+
+      const renewResult = bestSpawn.renewCreep(creep);
+      if (renewResult === ERR_NOT_IN_RANGE) {
+        creep.moveTo(bestSpawn, { visualizePathStyle: { stroke: '#19ff00' } });
+      } else if (renewResult === ERR_NOT_ENOUGH_ENERGY) {
+        // 如果能量不足则先不续命
+        creep.memory.needRenew = false;
+        return false;
       }
+      return true;
+    } else {
+      return false;
     }
   }
 }
