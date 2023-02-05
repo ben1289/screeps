@@ -11,7 +11,7 @@ export default class Harvester extends Creep {
       if (harvester.store.getFreeCapacity() > 0) {
         // 装载量有空余 前去挖矿
         if (harvester.harvest(source) === ERR_NOT_IN_RANGE) {
-          harvester.moveTo(source, { visualizePathStyle: { stroke: '#ffaa00' } });
+          harvester.moveTo(source, { visualizePathStyle: { stroke: '#ffff00' } });
         }
       } else {
         // 装载量满了 前去卸矿
@@ -23,7 +23,7 @@ export default class Harvester extends Creep {
         if (targets.length > 0) {
           // 有能存矿的建筑 前去存矿
           if (harvester.transfer(targets[0], RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-            harvester.moveTo(targets[0], { visualizePathStyle: { stroke: '#ffffff' } });
+            harvester.moveTo(targets[0], { visualizePathStyle: { stroke: '#00d9ff' } });
           }
         } else {
           // 没有能存矿的建筑 前去首个 spawn 处等待

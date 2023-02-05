@@ -18,12 +18,12 @@ export default class Updater extends Creep {
 
       if (updater.memory.working) {
         if (updater.upgradeController(this.room.controller as StructureController) === ERR_NOT_IN_RANGE) {
-          updater.moveTo(this.room.controller as StructureController, { visualizePathStyle: { stroke: '#ffffff' } });
+          updater.moveTo(this.room.controller as StructureController, { visualizePathStyle: { stroke: '#ff0000' } });
         }
       } else {
         const source = Game.getObjectById('5bbcae0a9099fc012e63858f' as Id<_HasId>) as Source;
         if (updater.harvest(source) === ERR_NOT_IN_RANGE) {
-          updater.moveTo(source, { visualizePathStyle: { stroke: '#ffaa00' } });
+          updater.moveTo(source, { visualizePathStyle: { stroke: '#ffff00' } });
         }
       }
     }

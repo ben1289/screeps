@@ -28,7 +28,7 @@ export default class Repairer extends Creep {
         if (targets.length > 0) {
           // 如果有损坏的建筑 则去修理
           if (repairer.repair(targets[0]) === ERR_NOT_IN_RANGE) {
-            repairer.moveTo(targets[0], { visualizePathStyle: { stroke: '#ffffff' } });
+            repairer.moveTo(targets[0], { visualizePathStyle: { stroke: '#ff8700' } });
           }
         } else {
           // 否则集中到一边
@@ -37,7 +37,7 @@ export default class Repairer extends Creep {
       } else {
         const source = Game.getObjectById('5bbcae0a9099fc012e638590' as Id<_HasId>) as Source;
         if (repairer.harvest(source) === ERR_NOT_IN_RANGE) {
-          repairer.moveTo(source, { visualizePathStyle: { stroke: '#ffaa00' } });
+          repairer.moveTo(source, { visualizePathStyle: { stroke: '#ffff00' } });
         }
       }
     }
