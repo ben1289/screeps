@@ -7,6 +7,7 @@ export default class Builder extends Creep {
 
   public run(): void {
     for (const builder of this.creeps) {
+      if (this.renewTick(builder)) return;
       if (builder.memory.working && builder.store[RESOURCE_ENERGY] === 0) {
         builder.memory.working = false;
         builder.say('⛏️ 去挖矿');

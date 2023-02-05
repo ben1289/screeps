@@ -7,6 +7,7 @@ export default class Updater extends Creep {
 
   public run(): void {
     for (const updater of this.creeps) {
+      if (this.renewTick(updater)) return;
       if (updater.memory.working && updater.store[RESOURCE_ENERGY] === 0) {
         updater.memory.working = false;
         updater.say('⛏️ 去挖矿');

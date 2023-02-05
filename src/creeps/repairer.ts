@@ -7,6 +7,7 @@ export default class Repairer extends Creep {
 
   public run(): void {
     for (const repairer of this.creeps) {
+      if (this.renewTick(repairer)) return;
       if (repairer.memory.working && repairer.store[RESOURCE_ENERGY] === 0) {
         repairer.memory.working = false;
         repairer.say('⛏️ 去挖矿');
