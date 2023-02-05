@@ -2,7 +2,7 @@ import Creep from './creep';
 
 export default class Repairer extends Creep {
   public constructor(room: Room, maximum = 3) {
-    super(room, [WORK, MOVE, CARRY], 'repairer', maximum);
+    super(room, 'repairer', undefined, maximum);
   }
 
   public run(): void {

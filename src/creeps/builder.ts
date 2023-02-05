@@ -2,7 +2,7 @@ import Creep from './creep';
 
 export default class Builder extends Creep {
   public constructor(room: Room, maximum = 3) {
-    super(room, [WORK, MOVE, CARRY], 'builder', maximum);
+    super(room, 'builder', undefined, maximum);
   }
 
   public run(): void {

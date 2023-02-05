@@ -1,8 +1,8 @@
 import Creep from './creep';
 
 export default class Harvester extends Creep {
-  public constructor(room: Room, maximum = 3) {
-    super(room, [WORK, MOVE, CARRY], 'harvester', maximum);
+  public constructor(room: Room, maximum?: number) {
+    super(room, 'harvester', undefined, maximum);
   }
 
   public run(): void {
