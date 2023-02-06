@@ -1,34 +1,38 @@
-export default class CreepClass {
+import { getBodyPartList, getBodyNeedEnergy, getEnergyCapacity } from '../utils';
+
+export default class CreepBase {
   protected room;
   protected spawns;
   protected readonly creeps;
 
-  public constructor(room: Room, role: string, body: BodyPartConstant[] = [MOVE, WORK, CARRY], maximum?: number) {
+  public constructor(room: Room, role: CreepRole, maximum?: number) {
     this.room = room;
     this.spawns = room.find(FIND_MY_SPAWNS);
     this.creeps = room.find(FIND_MY_CREEPS, { filter: creep => creep.memory.role === role });
-    const RCL = room.controller?.level ?? 0;
-    if (RCL === 2) {
-      body = [MOVE, MOVE, WORK, WORK, CARRY, CARRY];
-    } else if (RCL === 3) {
-      body = [MOVE, MOVE, MOVE, WORK, WORK, WORK, CARRY, CARRY, CARRY];
-    }
-    this.generate(role, body, maximum);
+    this.generate(role, maximum);
   }
 
   /**
    * 生成 creep
    * @param role
-   * @param body
    * @param maximum
    * @private
    */
-  private generate(role: string, body: BodyPartConstant[], maximum = 3): void {
+  private generate(role: CreepRole, maximum = 3): void {
+    const bodies: BodyPartConstant[][] = getBodyPartList(role);
     for (const spawn of this.spawns) {
+      // 如果 creep 数量不足 则生成
       if (this.creeps.length < maximum) {
-        // 如果 creep 数量不足 则生成
-        spawn.spawnCreep(body, `${role}_${Date.now()}`, { memory: { role, level: this.room.controller?.level ?? 0 } });
-        spawn.spawning?.setDirections([TOP_RIGHT, RIGHT, BOTTOM_RIGHT, BOTTOM]);
+        for (let i = bodies.length - 1; i >= 0; i--) {
+          const body = bodies[i];
+          if (getBodyNeedEnergy(body) <= getEnergyCapacity(this.room, 'getCapacity')) {
+            const level = i + 1;
+            // 采用最佳身体部件生成 creep
+            spawn.spawnCreep(body, `${role}_${Date.now()}`, { memory: { role, level } });
+            this.room.memory.creepLevel = level;
+            return;
+          }
+        }
       } else {
         break;
       }
@@ -40,7 +44,7 @@ export default class CreepClass {
    * @protected
    */
   protected renewTick(creep: Creep): boolean {
-    if (creep.memory.level !== this.room.controller?.level) {
+    if (creep.memory.level !== this.room.memory.creepLevel) {
       creep.memory.needRenew = false;
     } else if (creep.ticksToLive && creep.ticksToLive < 200) {
       creep.memory.needRenew = true;

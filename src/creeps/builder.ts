@@ -1,26 +1,26 @@
-import Creep from './creep';
+import CreepBase from './creepBase';
 
 /**
  * 建造者
  */
-export default class Builder extends Creep {
+export default class Builder extends CreepBase {
   public constructor(room: Room, maximum = 3) {
-    super(room, 'builder', undefined, maximum);
+    super(room, 'builder', maximum);
   }
 
   public run(): void {
-    for (const builder of this.creeps) {
-      if (this.renewTick(builder)) return;
-      if (builder.memory.working && builder.store[RESOURCE_ENERGY] === 0) {
-        builder.memory.working = false;
-        builder.say('⛏️ 去挖矿');
+    for (const creep of this.creeps) {
+      if (this.renewTick(creep)) return;
+      if (creep.memory.working && creep.store[RESOURCE_ENERGY] === 0) {
+        creep.memory.working = false;
+        creep.say('⛏️ 去挖矿');
       }
-      if (!builder.memory.working && builder.store.getFreeCapacity() === 0) {
-        builder.memory.working = true;
-        builder.say('🧱 去建造');
+      if (!creep.memory.working && creep.store.getFreeCapacity() === 0) {
+        creep.memory.working = true;
+        creep.say('🧱 去建造');
       }
 
-      if (builder.memory.working) {
+      if (creep.memory.working) {
         // 筛选建筑工地 并按剩余进度升序排列
         const targets = this.room
           .find(FIND_CONSTRUCTION_SITES)
@@ -28,12 +28,17 @@ export default class Builder extends Creep {
 
         if (targets.length > 0) {
           // 如果建筑工地存在 则去施工
-          if (builder.build(targets[0]) === ERR_NOT_IN_RANGE) {
-            builder.moveTo(targets[0], { visualizePathStyle: { stroke: '#0000ff' } });
+          if (creep.build(targets[0]) === ERR_NOT_IN_RANGE) {
+            creep.moveTo(targets[0], { visualizePathStyle: { stroke: '#0000ff' } });
           }
         } else {
-          // 否则集中到一边
-          builder.moveTo(23, 18, { visualizePathStyle: { stroke: '#ffffff' } });
+          // 否则前去集结点等待
+          const collectFlag = this.room.find(FIND_FLAGS, { filter: flag => flag.name === 'BFlag' })?.[0];
+          if (collectFlag) {
+            creep.moveTo(collectFlag, { visualizePathStyle: { stroke: '#ffffff' } });
+          } else {
+            creep.say('没找到 BFlag');
+          }
         }
       } else {
         const targets = this.room.find(FIND_STRUCTURES, {
@@ -41,13 +46,13 @@ export default class Builder extends Creep {
             structure.structureType === STRUCTURE_CONTAINER && structure.store.getCapacity(RESOURCE_ENERGY) > 0
         });
         if (targets.length > 0) {
-          if (builder.withdraw(targets[0], RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-            builder.moveTo(targets[0], { visualizePathStyle: { stroke: '#ffff00' } });
+          if (creep.withdraw(targets[0], RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+            creep.moveTo(targets[0], { visualizePathStyle: { stroke: '#ffff00' } });
           }
         } else {
-          const source = Game.getObjectById('5bbcae0a9099fc012e638590' as Id<_HasId>) as Source;
-          if (builder.harvest(source) === ERR_NOT_IN_RANGE) {
-            builder.moveTo(source, { visualizePathStyle: { stroke: '#ffff00' } });
+          const source = Game.getObjectById('5bbcac8a9099fc012e635a89' as Id<_HasId>) as Source;
+          if (creep.harvest(source) === ERR_NOT_IN_RANGE) {
+            creep.moveTo(source, { visualizePathStyle: { stroke: '#ffff00' } });
           }
         }
       }

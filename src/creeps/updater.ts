@@ -1,33 +1,33 @@
-import Creep from './creep';
+import CreepBase from './creepBase';
 
 /**
  * 升级者
  */
-export default class Updater extends Creep {
+export default class Updater extends CreepBase {
   public constructor(room: Room, maximum = 3) {
-    super(room, 'updater', undefined, maximum);
+    super(room, 'updater', maximum);
   }
 
   public run(): void {
-    for (const updater of this.creeps) {
-      if (this.renewTick(updater)) return;
-      if (updater.memory.working && updater.store[RESOURCE_ENERGY] === 0) {
-        updater.memory.working = false;
-        updater.say('⛏️ 去挖矿');
+    for (const creep of this.creeps) {
+      if (this.renewTick(creep)) return;
+      if (creep.memory.working && creep.store[RESOURCE_ENERGY] === 0) {
+        creep.memory.working = false;
+        creep.say('⛏️ 去挖矿');
       }
-      if (!updater.memory.working && updater.store.getFreeCapacity() === 0) {
-        updater.memory.working = true;
-        updater.say('⚡ 去升级');
+      if (!creep.memory.working && creep.store.getFreeCapacity() === 0) {
+        creep.memory.working = true;
+        creep.say('⚡ 去升级');
       }
 
-      if (updater.memory.working) {
-        if (updater.upgradeController(this.room.controller as StructureController) === ERR_NOT_IN_RANGE) {
-          updater.moveTo(this.room.controller as StructureController, { visualizePathStyle: { stroke: '#ff0000' } });
+      if (creep.memory.working) {
+        if (creep.upgradeController(this.room.controller as StructureController) === ERR_NOT_IN_RANGE) {
+          creep.moveTo(this.room.controller as StructureController, { visualizePathStyle: { stroke: '#ff0000' } });
         }
       } else {
-        const source = Game.getObjectById('5bbcae0a9099fc012e63858f' as Id<_HasId>) as Source;
-        if (updater.harvest(source) === ERR_NOT_IN_RANGE) {
-          updater.moveTo(source, { visualizePathStyle: { stroke: '#ffff00' } });
+        const source = Game.getObjectById('5bbcac8a9099fc012e635a89' as Id<_HasId>) as Source;
+        if (creep.harvest(source) === ERR_NOT_IN_RANGE) {
+          creep.moveTo(source, { visualizePathStyle: { stroke: '#ffff00' } });
         }
       }
     }

@@ -1,27 +1,27 @@
-import Creep from './creep';
+import CreepBase from './creepBase';
 
 /**
  * 采集者
  */
-export default class Harvester extends Creep {
+export default class Harvester extends CreepBase {
   public constructor(room: Room, maximum?: number) {
-    super(room, 'harvester', undefined, maximum);
+    super(room, 'harvester', maximum);
   }
 
   public run(): void {
-    for (const harvester of this.creeps) {
-      if (this.renewTick(harvester)) return;
-      if (harvester.memory.working && harvester.store[RESOURCE_ENERGY] === 0) {
-        harvester.memory.working = false;
-        harvester.say('⛏️ 去挖矿');
+    for (const creep of this.creeps) {
+      if (this.renewTick(creep)) return;
+      if (creep.memory.working && creep.store[RESOURCE_ENERGY] === 0) {
+        creep.memory.working = false;
+        creep.say('⛏️ 去挖矿');
       }
-      if (!harvester.memory.working && harvester.store.getFreeCapacity() === 0) {
-        harvester.memory.working = true;
-        harvester.say('⬇️ 去卸货');
+      if (!creep.memory.working && creep.store.getFreeCapacity() === 0) {
+        creep.memory.working = true;
+        creep.say('⬇️ 去卸货');
       }
-      if (harvester.memory.working) {
+      if (creep.memory.working) {
         // 装载量满了 前去卸矿
-        let targets = harvester.room.find(FIND_STRUCTURES, {
+        let targets = creep.room.find(FIND_STRUCTURES, {
           filter: (structure: StructureSpawn | StructureExtension) =>
             [STRUCTURE_SPAWN, STRUCTURE_EXTENSION, STRUCTURE_CONTAINER, STRUCTURE_TOWER].includes(
               structure.structureType
@@ -33,18 +33,23 @@ export default class Harvester extends Creep {
 
         if (targets.length > 0) {
           // 有能存矿的建筑 前去存矿
-          if (harvester.transfer(targets[0], RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-            harvester.moveTo(targets[0], { visualizePathStyle: { stroke: '#00d9ff' } });
+          if (creep.transfer(targets[0], RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+            creep.moveTo(targets[0], { visualizePathStyle: { stroke: '#00d9ff' } });
           }
         } else {
-          // 没有能存矿的建筑 前去首个 spawn 处等待
-          harvester.moveTo(this.spawns[0], { visualizePathStyle: { stroke: '#ffffff' } });
+          // 没有能存矿的建筑 前去集结点等待
+          const collectFlag = this.room.find(FIND_FLAGS, { filter: flag => flag.name === 'HFlag' })?.[0];
+          if (collectFlag) {
+            creep.moveTo(collectFlag, { visualizePathStyle: { stroke: '#ffffff' } });
+          } else {
+            creep.say('没找到 HFlag');
+          }
         }
       } else {
-        const source = Game.getObjectById('5bbcae0a9099fc012e638590' as Id<_HasId>) as Source;
+        const source = Game.getObjectById('5bbcac8a9099fc012e635a87' as Id<_HasId>) as Source;
         // 装载量有空余 前去挖矿
-        if (harvester.harvest(source) === ERR_NOT_IN_RANGE) {
-          harvester.moveTo(source, { visualizePathStyle: { stroke: '#ffff00' } });
+        if (creep.harvest(source) === ERR_NOT_IN_RANGE) {
+          creep.moveTo(source, { visualizePathStyle: { stroke: '#ffff00' } });
         }
       }
     }
