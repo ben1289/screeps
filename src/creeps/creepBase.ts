@@ -1,4 +1,4 @@
-import { getBodyPartList, getBodyNeedEnergy, getEnergyCapacity } from '../utils';
+import { getBodyPartList } from '../utils';
 
 export default class CreepBase {
   protected room;
@@ -20,21 +20,30 @@ export default class CreepBase {
    */
   private generate(role: CreepRole, maximum = 3): void {
     const bodies: BodyPartConstant[][] = getBodyPartList(role);
+    const roleLevel = this.room.memory.roleLevel[role] ?? 1;
+    const curLvBody = bodies[roleLevel - 1];
+    const nextLvBody = bodies[roleLevel];
     for (const spawn of this.spawns) {
-      // 如果 creep 数量不足 则生成
-      if (this.creeps.length < maximum) {
-        for (let i = bodies.length - 1; i >= 0; i--) {
-          const body = bodies[i];
-          if (getBodyNeedEnergy(body) <= getEnergyCapacity(this.room, 'getCapacity')) {
-            const level = i + 1;
-            // 采用最佳身体部件生成 creep
-            spawn.spawnCreep(body, `${role}_${Date.now()}`, { memory: { role, level } });
-            this.room.memory.creepLevel = level;
-            return;
+      // 如果能量够升级角色的 则生成下一等级的 creep
+      if (
+        nextLvBody &&
+        spawn.spawnCreep(nextLvBody, `${role}_${Date.now()}`, {
+          memory: {
+            role,
+            level: roleLevel + 1
           }
+        }) === OK
+      ) {
+        this.room.memory.roleLevel[role] = roleLevel + 1;
+        // 如果已经满员 则杀死最短生命的 creep
+        if (this.creeps.length >= maximum) {
+          this.creeps.sort((pre, cur) => (pre.ticksToLive ?? 0) - (cur.ticksToLive ?? 0));
+          this.creeps[0].suicide();
         }
       } else {
-        break;
+        if (this.creeps.length < maximum) {
+          spawn.spawnCreep(curLvBody, `${role}_${Date.now()}`, { memory: { role, level: roleLevel } });
+        }
       }
     }
   }
@@ -44,9 +53,7 @@ export default class CreepBase {
    * @protected
    */
   protected renewTick(creep: Creep): boolean {
-    if (creep.memory.level !== this.room.memory.creepLevel) {
-      creep.memory.needRenew = false;
-    } else if (creep.ticksToLive && creep.ticksToLive < 200) {
+    if (creep.ticksToLive && creep.ticksToLive < 200) {
       creep.memory.needRenew = true;
     } else if (creep.ticksToLive && creep.ticksToLive > 1400) {
       creep.memory.needRenew = false;
