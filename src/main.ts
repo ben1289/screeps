@@ -7,6 +7,9 @@ import Repairer from './creeps/repairer';
 export const loop = ErrorMapper.wrapLoop(() => {
   for (const roomsKey in Game.rooms) {
     const room = Game.rooms[roomsKey];
+    if (!room.memory.roleLevel) {
+      room.memory.roleLevel = {};
+    }
     const repairer = new Repairer(room);
     repairer.run();
     const builder = new Builder(room);
