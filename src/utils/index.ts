@@ -25,7 +25,8 @@ export function getBodyPartList(role: CreepRole): BodyPartConstant[][] {
       [MOVE, WORK, CARRY],
       [MOVE, MOVE, WORK, WORK, CARRY, CARRY],
       [MOVE, MOVE, MOVE, WORK, WORK, WORK, CARRY, CARRY, CARRY]
-    ]
+    ],
+    scavenger: [[MOVE, CARRY]]
   };
   return roleBodyPart[role];
 }
