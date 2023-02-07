@@ -46,7 +46,7 @@ export default class Harvester extends CreepBase {
           }
         }
       } else {
-        const source = Game.getObjectById('5bbcac8a9099fc012e635a87' as Id<_HasId>) as Source;
+        const source = Game.getObjectById('5bbcac8a9099fc012e635a89' as Id<_HasId>) as Source;
         // 装载量有空余 前去挖矿
         if (creep.harvest(source) === ERR_NOT_IN_RANGE) {
           creep.moveTo(source, { visualizePathStyle: { stroke: '#ffff00' } });

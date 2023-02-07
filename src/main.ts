@@ -14,9 +14,9 @@ export const loop = ErrorMapper.wrapLoop(() => {
     repairer.run();
     const builder = new Builder(room);
     builder.run();
-    const updater = new Updater(room);
+    const updater = new Updater(room, 2);
     updater.run();
-    const harvester = new Harvester(room);
+    const harvester = new Harvester(room, 4);
     harvester.run();
   }
 

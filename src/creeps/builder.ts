@@ -50,7 +50,7 @@ export default class Builder extends CreepBase {
             creep.moveTo(targets[0], { visualizePathStyle: { stroke: '#ffff00' } });
           }
         } else {
-          const source = Game.getObjectById('5bbcac8a9099fc012e635a89' as Id<_HasId>) as Source;
+          const source = Game.getObjectById('5bbcac8a9099fc012e635a87' as Id<_HasId>) as Source;
           if (creep.harvest(source) === ERR_NOT_IN_RANGE) {
             creep.moveTo(source, { visualizePathStyle: { stroke: '#ffff00' } });
           }
