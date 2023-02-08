@@ -21,15 +21,14 @@ export default class Harvester extends CreepBase {
       }
       if (creep.memory.working) {
         // 装载量满了 前去卸矿
+        type StructureTypes = StructureExtension | StructureSpawn | StructureContainer | StructureTower;
+        const structureTypes = [STRUCTURE_EXTENSION, STRUCTURE_SPAWN, STRUCTURE_CONTAINER, STRUCTURE_TOWER];
         let targets = creep.room.find(FIND_STRUCTURES, {
-          filter: (structure: StructureSpawn | StructureExtension) =>
-            [STRUCTURE_SPAWN, STRUCTURE_EXTENSION, STRUCTURE_CONTAINER, STRUCTURE_TOWER].includes(
-              structure.structureType
-            ) && structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0
+          filter: (structure: StructureTypes) =>
+            structureTypes.includes(structure.structureType) && structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0
         });
-        // 将扩展的优先级提高
-        const extension = targets.filter(structure => structure.structureType === STRUCTURE_EXTENSION);
-        targets = extension.length > 0 ? extension : targets;
+        // 按照 structureTypes 排序
+        targets = _.sortBy(targets, (structure: StructureTypes) => structureTypes.indexOf(structure.structureType));
 
         if (targets.length > 0) {
           // 有能存矿的建筑 前去存矿
