@@ -27,7 +27,7 @@ export default class Updater extends CreepBase {
       } else {
         const targets = this.room.find(FIND_STRUCTURES, {
           filter: structure =>
-            structure.structureType === STRUCTURE_CONTAINER && structure.store.getCapacity(RESOURCE_ENERGY) > 0
+            structure.structureType === STRUCTURE_CONTAINER && structure.store.getUsedCapacity(RESOURCE_ENERGY) > 0
         });
         if (targets.length > 0) {
           if (creep.withdraw(targets[0], RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
