@@ -4,7 +4,7 @@ import CreepBase from './creepBase';
  * 拾荒者
  */
 export default class Scavenger extends CreepBase {
-  public constructor(room: Room, maximum?: number) {
+  public constructor(room: Room, maximum = 1) {
     super(room, 'scavenger', maximum);
   }
 

@@ -4,7 +4,7 @@ import CreepBase from './creepBase';
  * 采集者
  */
 export default class Harvester extends CreepBase {
-  public constructor(room: Room, maximum?: number) {
+  public constructor(room: Room, maximum = 3) {
     super(room, 'harvester', maximum);
   }
 

@@ -10,7 +10,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
     if (!room.memory.roleLevel) {
       room.memory.roleLevel = {};
     }
-    const repairer = new Repairer(room);
+    const repairer = new Repairer(room, 2);
     repairer.run();
     const builder = new Builder(room);
     builder.run();
