@@ -22,11 +22,13 @@ export default class Repairer extends CreepBase {
 
       if (creep.memory.working) {
         const targets = this.room.find(FIND_STRUCTURES, {
-          filter: (structure: Structure) =>
-            structure.structureType !== STRUCTURE_WALL && structure.hitsMax - structure.hits > 0
+          // 排除墙和城墙
+          filter: structure =>
+            structure.structureType !== STRUCTURE_WALL &&
+            structure.structureType !== STRUCTURE_RAMPART &&
+            structure.hitsMax - structure.hits > 0
         });
         targets.sort((pre, cur) => pre.hits - cur.hits);
-
         if (targets.length > 0) {
           // 如果有损坏的建筑 则去修理
           if (creep.repair(targets[0]) === ERR_NOT_IN_RANGE) {
