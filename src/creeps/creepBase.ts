@@ -34,15 +34,24 @@ export default class CreepBase {
           }
         }) === OK
       ) {
+        // 并将该角色最高等级提升一级
         this.room.memory.roleLevel[role] = roleLevel + 1;
-        // 如果已经满员 则杀死最短生命的 creep
-        if (this.creeps.length >= maximum) {
-          this.creeps.sort((pre, cur) => (pre.ticksToLive ?? 0) - (cur.ticksToLive ?? 0));
-          this.creeps[0].suicide();
-        }
       } else {
         if (this.creeps.length < maximum) {
+          // 如果不满员 则生成 creep
           spawn.spawnCreep(curLvBody, `${role}_${Date.now()}`, { memory: { role, level: roleLevel } });
+        } else if (this.creeps.length === maximum) {
+          // 如果刚刚满员 则判断有无低等级 creep 有则生成 creep
+          if (this.creeps.findIndex(creep => creep.memory.level < roleLevel) !== -1) {
+            spawn.spawnCreep(curLvBody, `${role}_${Date.now()}`, { memory: { role, level: roleLevel } });
+          }
+        } else {
+          // 如果超员 则将冗余的 creep 杀掉
+          const overflowNum = this.creeps.length - maximum;
+          const creeps = _.sortBy(this.creeps, creep => creep.memory.level, 'ticksToLive');
+          for (let i = 0; i < overflowNum; i++) {
+            creeps[i].suicide();
+          }
         }
       }
     }
