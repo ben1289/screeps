@@ -5,7 +5,7 @@ export default class CreepBase {
   protected spawns;
   protected readonly creeps;
 
-  public constructor(room: Room, role: CreepRole, maximum?: number) {
+  public constructor(room: Room, role: CreepRole, maximum: number) {
     this.room = room;
     this.spawns = room.find(FIND_MY_SPAWNS);
     this.creeps = room.find(FIND_MY_CREEPS, { filter: creep => creep.memory.role === role });
@@ -18,7 +18,7 @@ export default class CreepBase {
    * @param maximum
    * @private
    */
-  private generate(role: CreepRole, maximum = 3): void {
+  private generate(role: CreepRole, maximum: number): void {
     const bodies: BodyPartConstant[][] = getBodyPartList(role);
     const roleLevel = this.room.memory.roleLevel[role] ?? 1;
     const curLvBody = bodies[roleLevel - 1];
