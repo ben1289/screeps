@@ -56,7 +56,7 @@ export default class CreepBase {
           const overflowNum = this.creeps.length - maximum;
           const creeps = _.sortBy(this.creeps, creep => creep.memory.level, 'ticksToLive');
           for (let i = 0; i < overflowNum; i++) {
-            const bestSpawn = this.findBestSpawn(creeps[i]);
+            const bestSpawn = this.findBestTarget(creeps[i], this.spawns);
             if (bestSpawn?.recycleCreep(creeps[i]) === ERR_NOT_IN_RANGE) {
               creeps[i].moveTo(bestSpawn);
             }
@@ -67,15 +67,16 @@ export default class CreepBase {
   }
 
   /**
-   * 寻找最近的 spawn
+   * 寻找最近的目标
    * @param creep
+   * @param targets
    * @protected
    */
-  protected findBestSpawn(creep: Creep): StructureSpawn | null {
-    if (this.spawns.length === 1) {
-      return this.spawns[0];
-    } else if (this.spawns.length > 1) {
-      return _.sortBy(this.spawns, spawn => spawn.room.findPath(creep.pos, spawn.pos).length)[0];
+  protected findBestTarget<T extends Structure | Source>(creep: Creep, targets: T[]): T | null {
+    if (targets.length === 1) {
+      return targets[0];
+    } else if (targets.length > 1) {
+      return _.sortBy(targets, target => this.room.findPath(creep.pos, target.pos).length)[0];
     } else {
       return null;
     }
@@ -93,7 +94,7 @@ export default class CreepBase {
     }
 
     if (creep.memory.needRenew === true) {
-      const bestSpawn = this.findBestSpawn(creep);
+      const bestSpawn = this.findBestTarget(creep, this.spawns);
       if (bestSpawn) {
         const renewResult = bestSpawn.renewCreep(creep);
         if (renewResult === OK) {
@@ -115,50 +116,9 @@ export default class CreepBase {
    */
   protected toHarvest(creep: Creep): void {
     const sources = creep.room.find(FIND_SOURCES_ACTIVE);
-    const goals = _.map(sources, source => ({ pos: source.pos, range: 1 }));
-    const ret = PathFinder.search(creep.pos, goals, {
-      plainCost: 2,
-      swampCost: 10,
-      roomCallback(roomName): boolean | CostMatrix {
-        const room = Game.rooms[roomName];
-        if (!room) return false;
-
-        if (room.memory.costs?.length > 0) {
-          return PathFinder.CostMatrix.deserialize(room.memory.costs);
-        }
-
-        const costs = new PathFinder.CostMatrix();
-
-        room.find(FIND_STRUCTURES).forEach(function (struct) {
-          if (struct.structureType === STRUCTURE_ROAD) {
-            // 寻路时将倾向于道路
-            costs.set(struct.pos.x, struct.pos.y, 1);
-          } else if (
-            struct.structureType !== STRUCTURE_CONTAINER &&
-            (struct.structureType !== STRUCTURE_RAMPART || !struct.my)
-          ) {
-            // 不能穿过无法行走的建筑
-            costs.set(struct.pos.x, struct.pos.y, 0xff);
-          }
-        });
-
-        // 躲避房间中的 creep
-        room.find(FIND_CREEPS).forEach(c => {
-          costs.set(c.pos.x, c.pos.y, 0xff);
-        });
-
-        room.memory.costs = costs.serialize();
-        return costs;
-      }
-    });
-
-    const pos = ret.path[0];
-    if (pos) {
-      creep.move(creep.pos.getDirectionTo(pos));
-    } else {
-      for (const source of sources) {
-        creep.harvest(source);
-      }
+    const bestSource = this.findBestTarget(creep, sources);
+    if (bestSource && creep.harvest(bestSource) === ERR_NOT_IN_RANGE) {
+      creep.moveTo(bestSource);
     }
   }
 
