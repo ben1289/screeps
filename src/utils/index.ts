@@ -1,5 +1,3 @@
-import { BodyPartPrice } from '../enum';
-
 // 常用身体部件
 const commonBody = [
   // 200
@@ -69,20 +67,5 @@ export function getBodyPartList(role: CreepRole): BodyPartConstant[][] {
  * @param body 身体部件
  */
 export function getBodyNeedEnergy(body: BodyPartConstant[]): number {
-  return _.sum(body.map(b => BodyPartPrice[b]));
-}
-
-/**
- * 根据 type 获取房间内 spawn 和 extension 的 energy
- * @param room 房间
- * @param type 总容量 | 可用容量 | 已用容量
- */
-export function getEnergyCapacity(room: Room, type: 'getCapacity' | 'getFreeCapacity' | 'getUsedCapacity'): number {
-  const spawnsEnergy = room.find(FIND_MY_SPAWNS).map(spawn => spawn.store[type](RESOURCE_ENERGY));
-  const extensionsEnergy = room
-    .find(FIND_STRUCTURES, {
-      filter: structure => structure.structureType === STRUCTURE_EXTENSION
-    })
-    .map(structure => (structure as StructureExtension).store[type](RESOURCE_ENERGY));
-  return _.sum([...spawnsEnergy, ...extensionsEnergy]);
+  return _.sum(body.map(part => BODYPART_COST[part]));
 }
