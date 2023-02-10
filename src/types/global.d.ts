@@ -3,10 +3,9 @@ interface Memory {
   log: any;
 }
 
-type CreepRole = 'harvester' | 'updater' | 'builder' | 'repairer' | 'wallRepairer' | 'scavenger';
-
 interface RoomMemory {
   roleLevel: { [K in CreepRole]?: number };
+  costs: number[];
 }
 
 interface CreepMemory {
