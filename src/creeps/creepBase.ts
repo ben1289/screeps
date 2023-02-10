@@ -101,7 +101,7 @@ export default class CreepBase {
           return true;
         }
         if (renewResult === ERR_NOT_IN_RANGE) {
-          creep.moveTo(bestSpawn, { visualizePathStyle: { stroke: '#19ff00' } });
+          creep.moveTo(bestSpawn, { visualizePathStyle: { stroke: '#00ff00' } });
           return true;
         }
       }
@@ -147,16 +147,42 @@ export default class CreepBase {
     if (targets.length > 0) {
       // 有能存矿的建筑 前去存矿
       if (creep.transfer(targets[0], RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-        creep.moveTo(targets[0], { visualizePathStyle: { stroke: '#fde36c' } });
+        creep.moveTo(targets[0]);
       }
     } else {
       // 没有能存矿的建筑 前去集结点等待
       const collectFlag = this.room.find(FIND_FLAGS, { filter: flag => flag.name === location })?.[0];
       if (collectFlag) {
-        creep.moveTo(collectFlag, { visualizePathStyle: { stroke: '#ffffff' } });
+        creep.moveTo(collectFlag);
       } else {
         creep.say(`没找到 ${location}`);
       }
+    }
+  }
+
+  /**
+   * 拿取 energy
+   * @param creep
+   * @protected
+   */
+  protected toWithDraw(creep: Creep): ScreepsReturnCode {
+    type StructureTypes = StructureStorage | StructureContainer;
+    const structureTypes = [STRUCTURE_STORAGE, STRUCTURE_CONTAINER];
+    let targets = this.room.find(FIND_STRUCTURES, {
+      filter: (structure: StructureTypes) =>
+        structureTypes.includes(structure.structureType) && structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0
+    });
+    // 按照 structureTypes 排序
+    targets = _.sortBy(targets, (structure: StructureTypes) => structureTypes.indexOf(structure.structureType));
+
+    if (targets.length > 0) {
+      const withdrawResult = creep.withdraw(targets[0], RESOURCE_ENERGY);
+      if (withdrawResult === ERR_NOT_IN_RANGE) {
+        creep.moveTo(targets[0], { visualizePathStyle: { stroke: '#ffff00' } });
+      }
+      return withdrawResult;
+    } else {
+      return ERR_NOT_ENOUGH_RESOURCES;
     }
   }
 }
