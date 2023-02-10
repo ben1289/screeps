@@ -9,15 +9,22 @@ export default class Scavenger extends CreepBase {
   }
 
   public run(): void {
-    for (const scavenger of this.creeps) {
+    for (const creep of this.creeps) {
+      if (this.renewTick(creep)) return;
       const dropped = this.room.find(FIND_DROPPED_RESOURCES);
-      if (scavenger.pickup(dropped[0]) === ERR_NOT_IN_RANGE) {
-        scavenger.moveTo(dropped[0], { visualizePathStyle: { stroke: '#00d9ff' } });
-      }
+      const tombstones = this.room.find(FIND_TOMBSTONES, {
+        filter: tombstone => tombstone.store.getUsedCapacity() > 0
+      });
+      creep.memory.working = (dropped.length > 0 || tombstones.length > 0) && creep.store.getFreeCapacity() > 0;
 
-      const tombstones = this.room.find(FIND_TOMBSTONES);
-      if (scavenger.withdraw(tombstones[0], RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-        scavenger.moveTo(tombstones[0], { visualizePathStyle: { stroke: '#00d9ff' } });
+      if (creep.memory.working) {
+        if (dropped[0] && creep.pickup(dropped[0]) === ERR_NOT_IN_RANGE) {
+          creep.moveTo(dropped[0], { visualizePathStyle: { stroke: '#00d9ff' } });
+        } else if (tombstones[0] && creep.withdraw(tombstones[0], RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+          creep.moveTo(tombstones[0], { visualizePathStyle: { stroke: '#00d9ff' } });
+        }
+      } else {
+        this.toStore(creep, 'SFlag');
       }
     }
   }
