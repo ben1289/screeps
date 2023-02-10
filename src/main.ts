@@ -12,7 +12,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
       room.memory.roleLevel = {};
     }
     const wallRepairer = new WallRepairer(room);
-    wallRepairer.run('5bbcac8a9099fc012e635a87');
+    wallRepairer.run();
     const repairer = new Repairer(room);
     repairer.run();
     const builder = new Builder(room);
