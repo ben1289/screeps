@@ -3,11 +3,7 @@ const commonBody = [
   // 200
   [MOVE, WORK, CARRY],
   // 400
-  getBodyArr([2, MOVE], [2, WORK], [2, CARRY]),
-  // 600
-  getBodyArr([3, MOVE], [3, WORK], [3, CARRY]),
-  // 800
-  getBodyArr([4, MOVE], [4, WORK], [4, CARRY])
+  getBodyArr([2, MOVE], [2, WORK], [2, CARRY])
 ];
 
 /**
@@ -44,20 +40,13 @@ export function getBodyPartList(role: CreepRole): BodyPartConstant[][] {
       // 400
       getBodyArr([3, MOVE], [2, WORK], [1, CARRY]),
       // 750
-      getBodyArr([4, MOVE], [4, WORK], [3, CARRY]),
-      // 1000
-      getBodyArr([5, MOVE], [5, WORK], [5, CARRY])
+      getBodyArr([4, MOVE], [4, WORK], [3, CARRY])
     ],
     updater: commonBody,
     builder: commonBody,
     repairer: commonBody,
     wallRepairer: commonBody,
-    scavenger: [
-      [MOVE, CARRY],
-      getBodyArr([2, MOVE], [2, CARRY]),
-      getBodyArr([3, MOVE], [3, CARRY]),
-      getBodyArr([4, MOVE], [4, CARRY])
-    ]
+    scavenger: [[MOVE, CARRY], getBodyArr([2, MOVE], [2, CARRY])]
   };
   return roleBodyPart[role];
 }
