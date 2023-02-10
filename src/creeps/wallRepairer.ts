@@ -8,9 +8,10 @@ export default class WallRepairer extends CreepBase {
     super(room, 'wallRepairer', maximum);
   }
 
-  public run(sourceId: string): void {
+  public run(): void {
     for (const creep of this.creeps) {
       if (this.renewTick(creep)) return;
+
       if (creep.memory.working && creep.store[RESOURCE_ENERGY] === 0) {
         creep.memory.working = false;
       }
@@ -39,9 +40,8 @@ export default class WallRepairer extends CreepBase {
           }
         }
       } else {
-        const source = Game.getObjectById(sourceId as Id<_HasId>) as Source;
-        if (creep.harvest(source) === ERR_NOT_IN_RANGE) {
-          creep.moveTo(source, { visualizePathStyle: { stroke: '#ffff00' } });
+        if (this.toWithDraw(creep) === ERR_NOT_ENOUGH_ENERGY) {
+          this.toHarvest(creep);
         }
       }
     }
