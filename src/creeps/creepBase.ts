@@ -56,10 +56,28 @@ export default class CreepBase {
           const overflowNum = this.creeps.length - maximum;
           const creeps = _.sortBy(this.creeps, creep => creep.memory.level, 'ticksToLive');
           for (let i = 0; i < overflowNum; i++) {
-            creeps[i].suicide();
+            const bestSpawn = this.findBestSpawn(creeps[i]);
+            if (bestSpawn?.recycleCreep(creeps[i]) === ERR_NOT_IN_RANGE) {
+              creeps[i].moveTo(bestSpawn);
+            }
           }
         }
       }
+    }
+  }
+
+  /**
+   * 寻找最近的 spawn
+   * @param creep
+   * @protected
+   */
+  protected findBestSpawn(creep: Creep): StructureSpawn | null {
+    if (this.spawns.length === 1) {
+      return this.spawns[0];
+    } else if (this.spawns.length > 1) {
+      return _.sortBy(this.spawns, spawn => spawn.room.findPath(creep.pos, spawn.pos).length)[0];
+    } else {
+      return null;
     }
   }
 
@@ -75,23 +93,110 @@ export default class CreepBase {
     }
 
     if (creep.memory.needRenew === true) {
-      // 求出最近路径的 spawn
-      const spawnIndex = this.spawns
-        .map((spawn, index) => ({ steps: spawn.room.findPath(creep.pos, spawn.pos), index }))
-        .sort((pre, cur) => pre.steps.length - cur.steps.length)?.[0].index;
-      const bestSpawn = this.spawns[spawnIndex];
-
-      const renewResult = bestSpawn.renewCreep(creep);
-      if (renewResult === ERR_NOT_IN_RANGE) {
-        creep.moveTo(bestSpawn, { visualizePathStyle: { stroke: '#19ff00' } });
-      } else if (renewResult === ERR_NOT_ENOUGH_ENERGY) {
-        // 如果能量不足则先不续命
-        creep.memory.needRenew = false;
-        return false;
+      const bestSpawn = this.findBestSpawn(creep);
+      if (bestSpawn) {
+        const renewResult = bestSpawn.renewCreep(creep);
+        if (renewResult === OK) {
+          return true;
+        }
+        if (renewResult === ERR_NOT_IN_RANGE) {
+          creep.moveTo(bestSpawn, { visualizePathStyle: { stroke: '#19ff00' } });
+          return true;
+        }
       }
-      return true;
+    }
+    return false;
+  }
+
+  /**
+   * 采集
+   * @param creep
+   * @protected
+   */
+  protected toHarvest(creep: Creep): void {
+    const sources = creep.room.find(FIND_SOURCES_ACTIVE);
+    const goals = _.map(sources, source => ({ pos: source.pos, range: 1 }));
+    const ret = PathFinder.search(creep.pos, goals, {
+      plainCost: 2,
+      swampCost: 10,
+      roomCallback(roomName): boolean | CostMatrix {
+        const room = Game.rooms[roomName];
+        if (!room) return false;
+
+        if (room.memory.costs?.length > 0) {
+          return PathFinder.CostMatrix.deserialize(room.memory.costs);
+        }
+
+        const costs = new PathFinder.CostMatrix();
+
+        room.find(FIND_STRUCTURES).forEach(function (struct) {
+          if (struct.structureType === STRUCTURE_ROAD) {
+            // 寻路时将倾向于道路
+            costs.set(struct.pos.x, struct.pos.y, 1);
+          } else if (
+            struct.structureType !== STRUCTURE_CONTAINER &&
+            (struct.structureType !== STRUCTURE_RAMPART || !struct.my)
+          ) {
+            // 不能穿过无法行走的建筑
+            costs.set(struct.pos.x, struct.pos.y, 0xff);
+          }
+        });
+
+        // 躲避房间中的 creep
+        room.find(FIND_CREEPS).forEach(c => {
+          costs.set(c.pos.x, c.pos.y, 0xff);
+        });
+
+        room.memory.costs = costs.serialize();
+        return costs;
+      }
+    });
+
+    const pos = ret.path[0];
+    if (pos) {
+      creep.move(creep.pos.getDirectionTo(pos));
     } else {
-      return false;
+      for (const source of sources) {
+        creep.harvest(source);
+      }
+    }
+  }
+
+  /**
+   * 存储
+   * @param creep
+   * @param location
+   * @protected
+   */
+  protected toStore(creep: Creep, location = 'flag'): void {
+    type StructureTypes = StructureExtension | StructureSpawn | StructureContainer | StructureTower | StructureStorage;
+    const structureTypes = [
+      STRUCTURE_EXTENSION,
+      STRUCTURE_SPAWN,
+      STRUCTURE_CONTAINER,
+      STRUCTURE_TOWER,
+      STRUCTURE_STORAGE
+    ];
+    let targets = this.room.find(FIND_STRUCTURES, {
+      filter: (structure: StructureTypes) =>
+        structureTypes.includes(structure.structureType) && structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0
+    });
+    // 按照 structureTypes 排序
+    targets = _.sortBy(targets, (structure: StructureTypes) => structureTypes.indexOf(structure.structureType));
+
+    if (targets.length > 0) {
+      // 有能存矿的建筑 前去存矿
+      if (creep.transfer(targets[0], RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+        creep.moveTo(targets[0], { visualizePathStyle: { stroke: '#fde36c' } });
+      }
+    } else {
+      // 没有能存矿的建筑 前去集结点等待
+      const collectFlag = this.room.find(FIND_FLAGS, { filter: flag => flag.name === location })?.[0];
+      if (collectFlag) {
+        creep.moveTo(collectFlag, { visualizePathStyle: { stroke: '#ffffff' } });
+      } else {
+        creep.say(`没找到 ${location}`);
+      }
     }
   }
 }
