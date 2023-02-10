@@ -5,7 +5,6 @@ interface Memory {
 
 interface RoomMemory {
   roleLevel: { [K in CreepRole]?: number };
-  costs: number[];
 }
 
 interface CreepMemory {
