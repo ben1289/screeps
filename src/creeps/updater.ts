@@ -26,7 +26,7 @@ export default class Updater extends CreepBase {
           creep.moveTo(this.room.controller as StructureController, { visualizePathStyle: { stroke: '#ff0000' } });
         }
       } else {
-        if (this.toWithDraw(creep) === ERR_NOT_ENOUGH_ENERGY) {
+        if (this.toWithdraw(creep) === ERR_NOT_ENOUGH_ENERGY) {
           this.toHarvest(creep);
         }
       }

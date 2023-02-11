@@ -42,7 +42,7 @@ export default class Builder extends CreepBase {
           }
         }
       } else {
-        if (this.toWithDraw(creep) === ERR_NOT_ENOUGH_ENERGY) {
+        if (this.toWithdraw(creep) === ERR_NOT_ENOUGH_ENERGY) {
           this.toHarvest(creep);
         }
       }
