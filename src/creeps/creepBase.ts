@@ -45,7 +45,10 @@ export default class CreepBase {
       } else {
         if (this.creeps.length < maximum) {
           // 如果不满员 则生成 creep
-          this.spawnCreep(spawn, curLevel);
+          if (this.spawnCreep(spawn, curLevel) === ERR_NOT_ENOUGH_ENERGY && this.creeps.length === 0) {
+            // 如果能量不足生成 且没有 creep 则将该角色最高等级降低一级
+            this.room.memory.roleLevel[role] = curLevel - 1;
+          }
         } else if (this.creeps.length === maximum) {
           // 如果刚刚满员 则判断有无低等级 creep 有则生成 creep
           if (this.creeps.findIndex(creep => creep.memory.level < curLevel) !== -1) {
@@ -56,10 +59,7 @@ export default class CreepBase {
           const overflowNum = this.creeps.length - maximum;
           const creeps = _.sortBy(this.creeps, creep => creep.memory.level, 'ticksToLive');
           for (let i = 0; i < overflowNum; i++) {
-            const bestSpawn = this.findBestTarget(creeps[i], this.spawns);
-            if (bestSpawn?.recycleCreep(creeps[i]) === ERR_NOT_IN_RANGE) {
-              creeps[i].moveTo(bestSpawn);
-            }
+            creeps[i].suicide();
           }
         }
       }
@@ -170,7 +170,7 @@ export default class CreepBase {
     const structureTypes = [STRUCTURE_STORAGE, STRUCTURE_CONTAINER];
     let targets = this.room.find(FIND_STRUCTURES, {
       filter: (structure: StructureTypes) =>
-        structureTypes.includes(structure.structureType) && structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0
+        structureTypes.includes(structure.structureType) && structure.store.getUsedCapacity(RESOURCE_ENERGY) > 0
     });
     // 按照 structureTypes 排序
     targets = _.sortBy(targets, (structure: StructureTypes) => structureTypes.indexOf(structure.structureType));
