@@ -4,6 +4,7 @@ import Updater from './creeps/updater';
 import Builder from './creeps/builder';
 import Repairer from './creeps/repairer';
 import WallRepairer from './creeps/wallRepairer';
+import Tower from './structures/tower';
 
 export const loop = ErrorMapper.wrapLoop(() => {
   for (const roomsKey in Game.rooms) {
@@ -11,13 +12,15 @@ export const loop = ErrorMapper.wrapLoop(() => {
     if (!room.memory.roleLevel) {
       room.memory.roleLevel = {};
     }
-    const wallRepairer = new WallRepairer(room);
+    const tower = new Tower(room);
+    tower.enableAttack();
+    const wallRepairer = new WallRepairer(room, 1);
     wallRepairer.run();
-    const repairer = new Repairer(room);
+    const repairer = new Repairer(room, 1);
     repairer.run();
-    const builder = new Builder(room);
+    const builder = new Builder(room, 1);
     builder.run();
-    const updater = new Updater(room, 2);
+    const updater = new Updater(room);
     updater.run();
     const harvester = new Harvester(room, 4);
     harvester.run();
