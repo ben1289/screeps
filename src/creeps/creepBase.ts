@@ -128,21 +128,16 @@ export default class CreepBase {
    * @param location
    * @protected
    */
-  protected toStore(creep: Creep, location = 'flag'): void {
-    type StructureTypes = StructureExtension | StructureSpawn | StructureContainer | StructureTower | StructureStorage;
-    const structureTypes = [
-      STRUCTURE_EXTENSION,
-      STRUCTURE_SPAWN,
-      STRUCTURE_CONTAINER,
-      STRUCTURE_TOWER,
-      STRUCTURE_STORAGE
-    ];
+  protected toStore(creep: Creep, location = 'Flag'): void {
+    const structureTypes = [STRUCTURE_EXTENSION, STRUCTURE_SPAWN, STRUCTURE_TOWER, STRUCTURE_STORAGE];
+    type StructureType = typeof structureTypes extends [infer T] ? T : never;
     let targets = this.room.find(FIND_STRUCTURES, {
-      filter: (structure: StructureTypes) =>
-        structureTypes.includes(structure.structureType) && structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0
+      filter: structure =>
+        structureTypes.includes(structure.structureType as StructureType) &&
+        (structure as AnyStoreStructure).store.getFreeCapacity(RESOURCE_ENERGY) > 0
     });
     // 按照 structureTypes 排序
-    targets = _.sortBy(targets, (structure: StructureTypes) => structureTypes.indexOf(structure.structureType));
+    targets = _.sortBy(targets, structure => structureTypes.indexOf(structure.structureType as StructureType));
 
     if (targets.length > 0) {
       // 有能存矿的建筑 前去存矿
@@ -161,22 +156,20 @@ export default class CreepBase {
   }
 
   /**
-   * 拿取 energy
+   * 拿取
    * @param creep
+   * @param resourceType
    * @protected
    */
-  protected toWithDraw(creep: Creep): ScreepsReturnCode {
-    type StructureTypes = StructureStorage | StructureContainer;
-    const structureTypes = [STRUCTURE_STORAGE, STRUCTURE_CONTAINER];
-    let targets = this.room.find(FIND_STRUCTURES, {
-      filter: (structure: StructureTypes) =>
-        structureTypes.includes(structure.structureType) && structure.store.getUsedCapacity(RESOURCE_ENERGY) > 0
+  protected toWithdraw(creep: Creep, resourceType: ResourceConstant = RESOURCE_ENERGY): ScreepsReturnCode {
+    const targets = this.room.find(FIND_STRUCTURES, {
+      filter: structure =>
+        structure.structureType === STRUCTURE_STORAGE &&
+        ((structure as AnyStoreStructure).store.getUsedCapacity(resourceType) ?? -1) > 0
     });
-    // 按照 structureTypes 排序
-    targets = _.sortBy(targets, (structure: StructureTypes) => structureTypes.indexOf(structure.structureType));
 
     if (targets.length > 0) {
-      const withdrawResult = creep.withdraw(targets[0], RESOURCE_ENERGY);
+      const withdrawResult = creep.withdraw(targets[0], resourceType);
       if (withdrawResult === ERR_NOT_IN_RANGE) {
         creep.moveTo(targets[0], { visualizePathStyle: { stroke: '#ffff00' } });
       }
