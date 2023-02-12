@@ -45,7 +45,12 @@ export default class CreepBase {
       } else {
         if (this.creeps.length < maximum) {
           // 如果不满员 则生成 creep
-          if (this.spawnCreep(spawn, curLevel) === ERR_NOT_ENOUGH_ENERGY && this.creeps.length === 0) {
+          if (
+            this.spawnCreep(spawn, curLevel) === ERR_NOT_ENOUGH_ENERGY &&
+            role === roleHarvester &&
+            this.creeps.length === 0 &&
+            curLevel > 1
+          ) {
             // 如果能量不足生成 且没有 creep 则将该角色最高等级降低一级
             this.room.memory.roleLevel[role] = curLevel - 1;
           }
