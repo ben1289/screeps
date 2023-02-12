@@ -1,4 +1,3 @@
-import { ErrorMapper } from 'utils/ErrorMapper';
 import Harvester from './creeps/harvester';
 import Updater from './creeps/updater';
 import Builder from './creeps/builder';
@@ -6,7 +5,7 @@ import Repairer from './creeps/repairer';
 import WallRepairer from './creeps/wallRepairer';
 import Tower from './structures/tower';
 
-export const loop = ErrorMapper.wrapLoop(() => {
+export const loop = (): void => {
   for (const roomsKey in Game.rooms) {
     const room = Game.rooms[roomsKey];
     if (!room.memory.roleLevel) {
@@ -32,4 +31,4 @@ export const loop = ErrorMapper.wrapLoop(() => {
       delete Memory.creeps[name];
     }
   }
-});
+};
