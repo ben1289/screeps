@@ -5,7 +5,7 @@ import CreepBase from './creepBase';
  */
 export default class WallRepairer extends CreepBase {
   public constructor(room: Room, maximum = 2) {
-    super(room, 'wallRepairer', maximum);
+    super(room, roleWallRepairer, maximum);
   }
 
   public run(): void {

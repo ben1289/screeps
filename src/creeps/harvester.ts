@@ -5,7 +5,7 @@ import CreepBase from './creepBase';
  */
 export default class Harvester extends CreepBase {
   public constructor(room: Room, maximum = 3) {
-    super(room, 'harvester', maximum);
+    super(room, roleHarvester, maximum);
   }
 
   public run(): void {
