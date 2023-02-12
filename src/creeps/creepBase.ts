@@ -47,7 +47,7 @@ export default class CreepBase {
           // 如果不满员 则生成 creep
           if (
             this.spawnCreep(spawn, curLevel) === ERR_NOT_ENOUGH_ENERGY &&
-            role === roleHarvester &&
+            role === 'harvester' &&
             this.creeps.length === 0 &&
             curLevel > 1
           ) {
@@ -111,6 +111,7 @@ export default class CreepBase {
         }
       }
     }
+    creep.memory.needRenew = false;
     return false;
   }
 
