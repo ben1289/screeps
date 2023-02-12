@@ -5,7 +5,7 @@ import CreepBase from './creepBase';
  */
 export default class Builder extends CreepBase {
   public constructor(room: Room, maximum = 3) {
-    super(room, roleBuilder, maximum);
+    super(room, 'builder', maximum);
   }
 
   public run(): void {
