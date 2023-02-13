@@ -1,3 +1,4 @@
+import { sortBy } from 'lodash-es';
 import CreepBase from './creepBase';
 
 /**
@@ -22,7 +23,7 @@ export default class Transporter extends CreepBase {
     for (const creep of this.creeps) {
       if (this.renewTick(creep)) continue;
 
-      const bestContainer = _.sortBy(this.containers, container => container.store.getFreeCapacity())[0];
+      const bestContainer = sortBy(this.containers, container => container.store.getFreeCapacity())[0];
       if (!creep.memory.working && creep.store.getUsedCapacity() === 0) {
         creep.memory.working = true;
         creep.say('一滴不剩了 去拿货');

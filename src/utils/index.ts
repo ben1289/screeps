@@ -1,3 +1,5 @@
+import { fill, sum } from 'lodash-es';
+
 /**
  * 根据身体部件数量 获得身体部件数组
  * @param array [数量, 身体部件]...
@@ -5,7 +7,7 @@
 function getBodyArr(...array: [number, BodyPartConstant][]): BodyPartConstant[] {
   const bodyArr: BodyPartConstant[] = [];
   for (const arr of array) {
-    bodyArr.push(..._.fill(Array(arr[0]), arr[1]));
+    bodyArr.push(...fill(Array(arr[0]), arr[1]));
   }
   return bodyArr;
 }
@@ -63,5 +65,5 @@ export function getBodyPartList(role: CreepRole): BodyPartConstant[][] {
  * @param body 身体部件
  */
 export function getBodyNeedEnergy(body: BodyPartConstant[]): number {
-  return _.sum(body.map(part => BODYPART_COST[part]));
+  return sum(body.map(part => BODYPART_COST[part]));
 }

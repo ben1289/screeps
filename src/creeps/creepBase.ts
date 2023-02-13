@@ -1,3 +1,4 @@
+import { sortBy } from 'lodash-es';
 import { getBodyPartList } from '../utils';
 
 export default class CreepBase {
@@ -23,7 +24,7 @@ export default class CreepBase {
     if (targets.length === 1) {
       return targets[0];
     } else if (targets.length > 1) {
-      return _.sortBy(targets, target => this.room.findPath(creep.pos, target.pos).length)[0];
+      return sortBy(targets, target => this.room.findPath(creep.pos, target.pos).length)[0];
     } else {
       return null;
     }
@@ -77,7 +78,7 @@ export default class CreepBase {
         } else {
           // 如果超员 则将冗余的 creep 杀掉
           const overflowNum = this.creeps.length - maximum;
-          const creeps = _.sortBy(this.creeps, creep => creep.memory.level, 'ticksToLive');
+          const creeps = sortBy(this.creeps, creep => creep.memory.level, 'ticksToLive');
           for (let i = 0; i < overflowNum; i++) {
             creeps[i].suicide();
           }
@@ -165,7 +166,7 @@ export default class CreepBase {
 
     if (targets.length > 0) {
       // 按照 structureTypes 排序
-      targets = _.sortBy(targets, structure => structureTypes.indexOf(structure.structureType as StructureType));
+      targets = sortBy(targets, structure => structureTypes.indexOf(structure.structureType as StructureType));
       // 有能存矿的建筑 前去存矿
       if (creep.transfer(targets[0], RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
         creep.moveTo(targets[0]);

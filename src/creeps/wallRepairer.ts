@@ -1,3 +1,4 @@
+import { sortBy, filter } from 'lodash-es';
 import CreepBase from './creepBase';
 
 /**
@@ -33,7 +34,10 @@ export default class WallRepairer extends CreepBase {
       }
 
       if (creep.memory.working) {
-        const targets = _.sortBy(_.filter(this.walls, structure => structure.hitsMax - structure.hits > 0, 'hits'));
+        const targets = sortBy(
+          filter(this.walls, structure => structure.hitsMax - structure.hits > 0),
+          'hits'
+        );
         if (targets.length > 0) {
           if (creep.repair(targets[0]) === ERR_NOT_IN_RANGE) {
             creep.moveTo(targets[0]);

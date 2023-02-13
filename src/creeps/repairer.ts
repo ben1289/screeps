@@ -1,3 +1,4 @@
+import { orderBy } from 'lodash-es';
 import CreepBase from './creepBase';
 
 /**
@@ -24,14 +25,13 @@ export default class Repairer extends CreepBase {
       }
 
       if (creep.memory.working) {
-        const targets = this.room.find(FIND_STRUCTURES, {
+        let targets = this.room.find(FIND_STRUCTURES, {
           // 排除墙和城墙
           filter: structure =>
-            structure.structureType !== STRUCTURE_WALL &&
-            structure.structureType !== STRUCTURE_RAMPART &&
-            structure.hitsMax - structure.hits > 0
+            structure.structureType !== STRUCTURE_WALL && structure.structureType !== STRUCTURE_RAMPART
         });
-        targets.sort((pre, cur) => pre.hits - cur.hits);
+        targets = orderBy(targets, structure => structure.hitsMax - structure.hits, ['desc']);
+
         if (targets.length > 0) {
           // 如果有损坏的建筑 则去修理
           if (creep.repair(targets[0]) === ERR_NOT_IN_RANGE) {

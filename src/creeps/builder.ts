@@ -1,3 +1,4 @@
+import { sortBy } from 'lodash-es';
 import CreepBase from './creepBase';
 
 /**
@@ -32,7 +33,7 @@ export default class Builder extends CreepBase {
 
       if (creep.memory.working) {
         // 筛选建筑工地 并按剩余进度升序排列
-        const targets = _.sortBy(this.constructionSites, site => site.progressTotal - site.progress);
+        const targets = sortBy(this.constructionSites, site => site.progressTotal - site.progress);
         if (creep.build(targets[0]) === ERR_NOT_IN_RANGE) {
           creep.moveTo(targets[0]);
         }
