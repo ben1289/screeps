@@ -14,4 +14,4 @@ interface CreepMemory {
   needRenew?: boolean;
 }
 
-type CreepRole = 'harvester' | 'updater' | 'builder' | 'repairer' | 'wallRepairer' | 'scavenger'
+type CreepRole = 'harvester' | 'transporter' | 'updater' | 'builder' | 'repairer' | 'wallRepairer' | 'scavenger';
