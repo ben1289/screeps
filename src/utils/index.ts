@@ -1,15 +1,3 @@
-// 常用身体部件
-const commonBody = [
-  // 200
-  [MOVE, WORK, CARRY],
-  // 400
-  getBodyArr([2, MOVE], [2, WORK], [2, CARRY]),
-  // 800
-  getBodyArr([4, MOVE], [4, WORK], [4, CARRY]),
-  // 1000
-  getBodyArr([5, MOVE], [5, WORK], [5, CARRY])
-];
-
 /**
  * 根据身体部件数量 获得身体部件数组
  * @param array [数量, 身体部件]...
@@ -21,6 +9,18 @@ function getBodyArr(...array: [number, BodyPartConstant][]): BodyPartConstant[] 
   }
   return bodyArr;
 }
+
+// 常用身体部件
+const commonBody = [
+  // 200
+  [MOVE, WORK, CARRY],
+  // 400
+  getBodyArr([2, MOVE], [2, WORK], [2, CARRY]),
+  // 800
+  getBodyArr([4, MOVE], [4, WORK], [4, CARRY]),
+  // 1000
+  getBodyArr([5, MOVE], [5, WORK], [5, CARRY])
+];
 
 /**
  * 根据角色获取身体部件列表
@@ -48,6 +48,7 @@ export function getBodyPartList(role: CreepRole): BodyPartConstant[][] {
       // 1000
       getBodyArr([5, MOVE], [5, WORK], [5, CARRY])
     ],
+    transporter: [getBodyArr([6, MOVE], [6, CARRY]), getBodyArr([8, MOVE], [8, CARRY])],
     updater: commonBody,
     builder: commonBody,
     repairer: commonBody,
