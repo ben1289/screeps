@@ -9,7 +9,7 @@ export default class Transporter extends CreepBase {
   public constructor(room: Room, maximum = 1) {
     super(room, 'transporter');
 
-    this.containers = room.find(FIND_STRUCTURES, { filter: { structureType: StructureContainer } });
+    this.containers = room.find(FIND_STRUCTURES, { filter: { structureType: STRUCTURE_CONTAINER } });
     if (this.containers.length > 0) {
       this.generate(maximum);
       this.run();
