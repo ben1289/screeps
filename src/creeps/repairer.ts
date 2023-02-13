@@ -35,7 +35,7 @@ export default class Repairer extends CreepBase {
         if (targets.length > 0) {
           // 如果有损坏的建筑 则去修理
           if (creep.repair(targets[0]) === ERR_NOT_IN_RANGE) {
-            creep.moveTo(targets[0], { visualizePathStyle: { stroke: '#ff8700' } });
+            creep.moveTo(targets[0]);
           }
         } else {
           this.toMass(creep);

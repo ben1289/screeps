@@ -206,7 +206,7 @@ export default class CreepBase {
   protected toMass(creep: Creep, flag = 'Flag'): void {
     const massFlag = this.room.find(FIND_FLAGS, { filter: f => f.name === flag })?.[0];
     if (massFlag) {
-      creep.moveTo(massFlag, { visualizePathStyle: { stroke: '#ffffff' } });
+      creep.moveTo(massFlag);
     } else {
       creep.say(`没找到${flag}集结点`);
     }
