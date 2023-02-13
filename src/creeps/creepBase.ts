@@ -121,7 +121,7 @@ export default class CreepBase {
    */
   protected recycle(creep: Creep): void {
     const bestSpawn = this.findBestTarget(creep, this.spawns);
-    if (bestSpawn?.renewCreep(creep) === ERR_NOT_IN_RANGE) {
+    if (bestSpawn?.recycleCreep(creep) === ERR_NOT_IN_RANGE) {
       creep.moveTo(bestSpawn);
     }
   }
