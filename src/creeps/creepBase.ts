@@ -6,12 +6,27 @@ export default class CreepBase {
   protected spawns;
   protected readonly creeps;
 
-  public constructor(room: Room, role: CreepRole, maximum: number) {
+  public constructor(room: Room, role: CreepRole) {
     this.role = role;
     this.room = room;
     this.spawns = room.find(FIND_MY_SPAWNS);
     this.creeps = room.find(FIND_MY_CREEPS, { filter: creep => creep.memory.role === role });
-    this.generate(maximum);
+  }
+
+  /**
+   * 寻找最近的目标
+   * @param creep
+   * @param targets
+   * @protected
+   */
+  protected findBestTarget<T extends Structure | Source>(creep: Creep, targets: T[]): T | null {
+    if (targets.length === 1) {
+      return targets[0];
+    } else if (targets.length > 1) {
+      return _.sortBy(targets, target => this.room.findPath(creep.pos, target.pos).length)[0];
+    } else {
+      return null;
+    }
   }
 
   /**
@@ -31,9 +46,9 @@ export default class CreepBase {
   /**
    * 生成 creep
    * @param maximum
-   * @private
+   * @protected
    */
-  private generate(maximum: number): void {
+  protected generate(maximum: number): void {
     const role = this.role;
     const curLevel = this.room.memory.roleLevel[role] ?? 1;
     const nextLevel = curLevel + 1;
@@ -72,24 +87,9 @@ export default class CreepBase {
   }
 
   /**
-   * 寻找最近的目标
-   * @param creep
-   * @param targets
-   * @protected
-   */
-  protected findBestTarget<T extends Structure | Source>(creep: Creep, targets: T[]): T | null {
-    if (targets.length === 1) {
-      return targets[0];
-    } else if (targets.length > 1) {
-      return _.sortBy(targets, target => this.room.findPath(creep.pos, target.pos).length)[0];
-    } else {
-      return null;
-    }
-  }
-
-  /**
    * 续命
    * @protected
+   * @return 是否需要续命
    */
   protected renewTick(creep: Creep): boolean {
     if (creep.ticksToLive && creep.ticksToLive < 200) {
@@ -110,13 +110,34 @@ export default class CreepBase {
           return true;
         }
       }
+      creep.memory.needRenew = false;
     }
-    creep.memory.needRenew = false;
     return false;
   }
 
   /**
-   * 采集
+   * 回收 creep
+   * @protected
+   */
+  protected recycle(creep: Creep): void {
+    const bestSpawn = this.findBestTarget(creep, this.spawns);
+    if (bestSpawn?.renewCreep(creep) === ERR_NOT_IN_RANGE) {
+      creep.moveTo(bestSpawn);
+    }
+  }
+
+  /**
+   * 回收全部 creep
+   * @protected
+   */
+  protected recycleAll(): void {
+    for (const creep of this.creeps) {
+      this.recycle(creep);
+    }
+  }
+
+  /**
+   * 去采集
    * @param creep
    * @protected
    */
@@ -129,12 +150,11 @@ export default class CreepBase {
   }
 
   /**
-   * 存储
+   * 去存货
    * @param creep
-   * @param location
    * @protected
    */
-  protected toStore(creep: Creep, location = 'Flag'): void {
+  protected toStore(creep: Creep): void {
     const structureTypes = [STRUCTURE_EXTENSION, STRUCTURE_SPAWN, STRUCTURE_TOWER, STRUCTURE_STORAGE];
     type StructureType = typeof structureTypes extends [infer T] ? T : never;
     let targets = this.room.find(FIND_STRUCTURES, {
@@ -142,27 +162,19 @@ export default class CreepBase {
         structureTypes.includes(structure.structureType as StructureType) &&
         (structure as AnyStoreStructure).store.getFreeCapacity(RESOURCE_ENERGY) > 0
     });
-    // 按照 structureTypes 排序
-    targets = _.sortBy(targets, structure => structureTypes.indexOf(structure.structureType as StructureType));
 
     if (targets.length > 0) {
+      // 按照 structureTypes 排序
+      targets = _.sortBy(targets, structure => structureTypes.indexOf(structure.structureType as StructureType));
       // 有能存矿的建筑 前去存矿
       if (creep.transfer(targets[0], RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
         creep.moveTo(targets[0]);
-      }
-    } else {
-      // 没有能存矿的建筑 前去集结点等待
-      const collectFlag = this.room.find(FIND_FLAGS, { filter: flag => flag.name === location })?.[0];
-      if (collectFlag) {
-        creep.moveTo(collectFlag);
-      } else {
-        creep.say(`没找到 ${location}`);
       }
     }
   }
 
   /**
-   * 拿取
+   * 去拿货
    * @param creep
    * @param resourceType
    * @protected
@@ -177,11 +189,26 @@ export default class CreepBase {
     if (targets.length > 0) {
       const withdrawResult = creep.withdraw(targets[0], resourceType);
       if (withdrawResult === ERR_NOT_IN_RANGE) {
-        creep.moveTo(targets[0], { visualizePathStyle: { stroke: '#ffff00' } });
+        creep.moveTo(targets[0]);
       }
       return withdrawResult;
     } else {
       return ERR_NOT_ENOUGH_RESOURCES;
+    }
+  }
+
+  /**
+   * 去集结
+   * @param creep
+   * @param flag
+   * @protected
+   */
+  protected toMass(creep: Creep, flag = 'Flag'): void {
+    const massFlag = this.room.find(FIND_FLAGS, { filter: f => f.name === flag })?.[0];
+    if (massFlag) {
+      creep.moveTo(massFlag, { visualizePathStyle: { stroke: '#ffffff' } });
+    } else {
+      creep.say(`没找到${flag}集结点`);
     }
   }
 }
