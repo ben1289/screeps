@@ -1,4 +1,5 @@
 import Harvester from './creeps/harvester';
+import Transporter from './creeps/transporter';
 import Updater from './creeps/updater';
 import Builder from './creeps/builder';
 import Repairer from './creeps/repairer';
@@ -13,19 +14,20 @@ export const loop = (): void => {
     }
     const tower = new Tower(room);
     tower.enableAttack();
-    const wallRepairer = new WallRepairer(room, 1);
-    wallRepairer.run();
-    const repairer = new Repairer(room, 1);
-    repairer.run();
-    const builder = new Builder(room, 1);
-    builder.run();
-    const updater = new Updater(room);
-    updater.run();
-    const harvester = new Harvester(room, 4);
-    harvester.run();
+    new WallRepairer(room);
+    new Repairer(room);
+    new Builder(room);
+    new Updater(room);
+    new Transporter(room);
+    new Harvester(room);
   }
 
-  // Automatically delete memory of missing creeps
+  for (const name in Memory.rooms) {
+    if (!(name in Game.rooms)) {
+      delete Memory.rooms[name];
+    }
+  }
+
   for (const name in Memory.creeps) {
     if (!(name in Game.creeps)) {
       delete Memory.creeps[name];
