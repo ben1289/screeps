@@ -4,21 +4,23 @@ import CreepBase from './creepBase';
  * 维修者
  */
 export default class Repairer extends CreepBase {
-  public constructor(room: Room, maximum = 2) {
-    super(room, 'repairer', maximum);
+  public constructor(room: Room, maximum = 1) {
+    super(room, 'repairer');
+    this.generate(maximum);
+    this.run();
   }
 
-  public run(): void {
+  private run(): void {
     for (const creep of this.creeps) {
-      if (this.renewTick(creep)) return;
+      if (this.renewTick(creep)) continue;
 
-      if (creep.memory.working && creep.store[RESOURCE_ENERGY] === 0) {
-        creep.memory.working = false;
-        creep.say('⛏️ 去挖矿');
-      }
       if (!creep.memory.working && creep.store.getFreeCapacity() === 0) {
         creep.memory.working = true;
-        creep.say('🛠️ 去维修');
+        creep.say('尅饱了 去维修');
+      }
+      if (creep.memory.working && creep.store[RESOURCE_ENERGY] === 0) {
+        creep.memory.working = false;
+        creep.say('特么饿了 去干饭');
       }
 
       if (creep.memory.working) {
@@ -36,13 +38,7 @@ export default class Repairer extends CreepBase {
             creep.moveTo(targets[0], { visualizePathStyle: { stroke: '#ff8700' } });
           }
         } else {
-          // 否则前去集结点等待
-          const collectFlag = this.room.find(FIND_FLAGS, { filter: flag => flag.name === 'RFlag' })?.[0];
-          if (collectFlag) {
-            creep.moveTo(collectFlag, { visualizePathStyle: { stroke: '#ffffff' } });
-          } else {
-            creep.say('没找到 RFlag');
-          }
+          this.toMass(creep);
         }
       } else {
         if (this.toWithdraw(creep) === ERR_NOT_ENOUGH_ENERGY) {
