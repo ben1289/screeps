@@ -50,7 +50,11 @@ export function getBodyPartList(role: CreepRole): BodyPartConstant[][] {
       // 1000
       getBodyArr([5, MOVE], [5, WORK], [5, CARRY])
     ],
-    transporter: [getBodyArr([6, MOVE], [6, CARRY]), getBodyArr([8, MOVE], [8, CARRY])],
+    transporter: [
+      getBodyArr([4, MOVE], [8, CARRY]),
+      getBodyArr([6, MOVE], [12, CARRY]),
+      getBodyArr([8, MOVE], [16, CARRY])
+    ],
     updater: commonBody,
     builder: commonBody,
     repairer: commonBody,
@@ -66,4 +70,12 @@ export function getBodyPartList(role: CreepRole): BodyPartConstant[][] {
  */
 export function getBodyNeedEnergy(body: BodyPartConstant[]): number {
   return sum(body.map(part => BODYPART_COST[part]));
+}
+
+/**
+ * 根据 id 获取 object
+ * @param id
+ */
+export function getObjectById<T>(id: string): T {
+  return Game.getObjectById(id as Id<_HasId>) as T;
 }
