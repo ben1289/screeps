@@ -138,6 +138,16 @@ export default class CreepBase {
   }
 
   /**
+   * 全部自杀
+   * @protected
+   */
+  protected allSuicide(): void {
+    for (const creep of this.creeps) {
+      creep.suicide();
+    }
+  }
+
+  /**
    * 去采集
    * @param creep
    * @protected
