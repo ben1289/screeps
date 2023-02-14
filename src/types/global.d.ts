@@ -5,6 +5,7 @@ interface Memory {
 
 interface RoomMemory {
   roleLevel: { [K in CreepRole]?: number };
+  sourceContainer: { sourceId: string; containerId: string }[];
 }
 
 interface CreepMemory {
