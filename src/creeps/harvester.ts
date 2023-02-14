@@ -25,7 +25,9 @@ export default class Harvester extends CreepBase {
       if (this.sourceContainer.length > 0) {
         const source = getObjectById<Source>(this.sourceContainer[i].sourceId);
         const container = getObjectById<StructureContainer>(this.sourceContainer[i].containerId);
-        if (creep.harvest(source) === ERR_NOT_IN_RANGE) {
+        if (creep.pos.isEqualTo(container)) {
+          creep.harvest(source);
+        } else {
           creep.moveTo(container);
         }
         if (creep.store.getFreeCapacity() === 0) {
@@ -34,7 +36,7 @@ export default class Harvester extends CreepBase {
           } else {
             const links = this.room.find(FIND_STRUCTURES, { filter: { structureType: STRUCTURE_LINK } });
             for (const link of links) {
-              if (creep.pos.inRangeTo(link, 1)) {
+              if (creep.pos.isNearTo(link)) {
                 creep.transfer(link, RESOURCE_ENERGY);
               }
             }
