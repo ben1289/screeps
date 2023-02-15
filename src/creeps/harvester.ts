@@ -9,7 +9,7 @@ export default class Harvester extends CreepBase {
 
   public constructor(room: Room, maximum = 3) {
     super(room, 'harvester');
-    this.sourceContainer = this.room.memory.sourceContainer;
+    this.sourceContainer = this.room.memory.sourceContainer ?? [];
     if (this.sourceContainer.length > 0) {
       this.generate(this.sourceContainer.length);
     } else {
