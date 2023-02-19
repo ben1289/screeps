@@ -5,21 +5,19 @@ import Builder from './creeps/builder';
 import Repairer from './creeps/repairer';
 import WallRepairer from './creeps/wallRepairer';
 import Tower from './structures/tower';
+import { roomStore } from './store';
 
 export const loop = (): void => {
-  for (const roomsKey in Game.rooms) {
-    const room = Game.rooms[roomsKey];
-    if (!room.memory.roleLevel) {
-      room.memory.roleLevel = {};
-    }
-    const tower = new Tower(room);
+  roomStore.init();
+  for (const myRoom of roomStore.myRooms) {
+    const tower = new Tower(myRoom);
     tower.enableAttack();
-    new WallRepairer(room);
-    new Repairer(room);
-    new Builder(room);
-    new Updater(room);
-    new Transporter(room);
-    new Harvester(room);
+    new WallRepairer(myRoom);
+    new Repairer(myRoom);
+    new Builder(myRoom);
+    new Updater(myRoom);
+    new Transporter(myRoom);
+    new Harvester(myRoom);
   }
 
   for (const name in Memory.rooms) {
