@@ -7,6 +7,9 @@ export default class Tower {
     this.towers = room.find(FIND_MY_STRUCTURES, { filter: { structureType: STRUCTURE_TOWER } });
   }
 
+  /**
+   * 启用攻击
+   */
   public enableAttack(): void {
     const bodyTypes = [WORK, ATTACK, RANGED_ATTACK, HEAL, CLAIM];
     type BodyType = typeof bodyTypes extends [infer T] ? T : never;
@@ -19,5 +22,19 @@ export default class Tower {
         tower.attack(closestCreep);
       }
     }
+  }
+
+  /**
+   * 启用治疗
+   */
+  public enableHeal(): void {
+    // TODO 治疗相关代码
+  }
+
+  /**
+   * 启用维修
+   */
+  public enableRepair(): void {
+    // TODO 维修相关代码
   }
 }
