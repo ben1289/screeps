@@ -1,7 +1,7 @@
 export let myRooms: Room[] = [];
 export let publicRooms: Room[] = [];
 
-export function init(): void {
+export function initRoomStore(): void {
   myRooms = [];
   publicRooms = [];
   for (const name in Game.rooms) {
