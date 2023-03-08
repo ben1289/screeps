@@ -51,6 +51,7 @@ export function getBodyPartList(role: CreepRole): BodyPartConstant[][] {
       getBodyArr([5, MOVE], [5, WORK], [5, CARRY])
     ],
     transporter: [
+      getBodyArr([2, MOVE], [4, CARRY]),
       getBodyArr([4, MOVE], [8, CARRY]),
       getBodyArr([6, MOVE], [12, CARRY]),
       getBodyArr([8, MOVE], [16, CARRY])
@@ -58,7 +59,7 @@ export function getBodyPartList(role: CreepRole): BodyPartConstant[][] {
     updater: commonBody,
     builder: commonBody,
     repairer: commonBody,
-    wallRepairer: commonBody,
+    wallRepairer: [getBodyArr([2, MOVE], [1, WORK], [1, CARRY]), getBodyArr([6, MOVE], [2, WORK], [4, CARRY])],
     scavenger: [[MOVE, CARRY], getBodyArr([2, MOVE], [2, CARRY])]
   };
   return roleBodyPart[role];
