@@ -1,3 +1,4 @@
+import { ErrorMapper } from 'utils/ErrorMapper';
 import Harvester from './creeps/harvester';
 import Transporter from './creeps/transporter';
 import Updater from './creeps/updater';
@@ -8,7 +9,7 @@ import Tower from './structures/tower';
 import Link from './structures/link';
 import { initRoomStore, myRooms, initSourceStore, initContBySrc } from './store';
 
-export const loop = (): void => {
+export const loop = ErrorMapper.wrapLoop(() => {
   initRoomStore();
   initSourceStore();
   initContBySrc();
@@ -36,4 +37,4 @@ export const loop = (): void => {
       delete Memory.creeps[name];
     }
   }
-};
+});
