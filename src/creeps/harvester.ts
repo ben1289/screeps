@@ -48,11 +48,11 @@ export default class Harvester extends CreepBase {
         // 仅采集模式
         const source = this.sources[i];
 
-        if (creep.harvest(source) === ERR_NOT_IN_RANGE) {
-          creep.moveTo(source);
-        }
-
-        if (creep.store.getFreeCapacity() === 0) {
+        if (creep.store.getFreeCapacity() > 0) {
+          if (creep.harvest(source) === ERR_NOT_IN_RANGE) {
+            creep.moveTo(source);
+          }
+        } else {
           const link = (linksNearSource.get(source.id) ?? []).find(
             linkNearSource => creep.store.getUsedCapacity() <= (linkNearSource.store.getFreeCapacity() ?? 0)
           );
