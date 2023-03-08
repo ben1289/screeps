@@ -10,13 +10,16 @@ export default class Harvester extends CreepBase {
   public constructor(room: Room, maximum = 3) {
     super(room, 'harvester');
     this.sources = mySource.get(room.name) ?? [];
-    if (this.sources.length > 0) {
-      this.generate(this.sources.length);
-      this.run(false);
-    } else {
-      this.generate(maximum);
-      this.run(true);
+    let transportMode = true;
+    for (const source of this.sources) {
+      transportMode = !(containersNearSource.has(source.id) || linksNearSource.has(source.id));
     }
+    if (transportMode) {
+      this.generate(maximum);
+    } else {
+      this.generate(this.sources.length);
+    }
+    this.run(transportMode);
   }
 
   /**
