@@ -1,30 +1,21 @@
 import { ErrorMapper } from 'utils/ErrorMapper';
-import Harvester from './creeps/harvester';
-import Transporter from './creeps/transporter';
-import Updater from './creeps/updater';
-import Builder from './creeps/builder';
-import Repairer from './creeps/repairer';
-import WallRepairer from './creeps/wallRepairer';
-import Tower from './structures/tower';
-import Link from './structures/link';
-import { initRoomStore, myRooms, initSourceStore, initContBySrc } from './store';
+import { Harvester, Transporter, Updater, Builder, Repairer, WallRepairer } from './creeps';
+import { tower, link } from './structures';
+import { initStore, roomStore } from './store';
 
 export const loop = ErrorMapper.wrapLoop(() => {
-  initRoomStore();
-  initSourceStore();
-  initContBySrc();
-  for (const myRoom of myRooms) {
-    const tower = new Tower(myRoom);
-    tower.enableAttack();
-    new WallRepairer(myRoom);
-    new Repairer(myRoom);
-    new Builder(myRoom);
-    new Updater(myRoom);
-    new Transporter(myRoom);
-    new Harvester(myRoom);
-    const link = new Link(myRoom);
-    link.enableTransfer();
+  initStore();
+  for (const room of roomStore.my) {
+    new WallRepairer(room);
+    new Repairer(room);
+    new Builder(room);
+    new Updater(room);
+    new Transporter(room);
+    new Harvester(room);
   }
+
+  tower.enableAttack();
+  link.enableTransfer();
 
   for (const name in Memory.rooms) {
     if (!(name in Game.rooms)) {
