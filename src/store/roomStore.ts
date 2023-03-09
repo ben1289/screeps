@@ -1,18 +1,24 @@
-export let myRooms: Room[] = [];
-export let publicRooms: Room[] = [];
+let loadedTick = 0;
 
-export function initRoomStore(): void {
-  myRooms = [];
-  publicRooms = [];
-  for (const name in Game.rooms) {
-    const room = Game.rooms[name];
+let my: Room[] = [];
+let other: Room[] = [];
+
+function init(tick = 10): void {
+  if (Game.time - loadedTick < tick) return;
+  my = [];
+  other = [];
+  for (const roomName in Game.rooms) {
+    const room = Game.rooms[roomName];
     if (room.controller?.my) {
-      myRooms.push(room);
+      my.push(room);
       if (!room.memory.roleLevel) {
         room.memory.roleLevel = {};
       }
     } else {
-      publicRooms.push(room);
+      other.push(room);
     }
   }
+  loadedTick = Game.time;
 }
+
+export { my, other, init };
