@@ -1,4 +1,5 @@
 import { fill, sum } from 'lodash-es';
+export * from './tools';
 
 /**
  * 根据身体部件数量 获得身体部件数组
@@ -71,12 +72,4 @@ export function getBodyPartList(role: CreepRole): BodyPartConstant[][] {
  */
 export function getBodyNeedEnergy(body: BodyPartConstant[]): number {
   return sum(body.map(part => BODYPART_COST[part]));
-}
-
-/**
- * 根据 id 获取 object
- * @param id
- */
-export function getObjectById<T>(id: string): T {
-  return Game.getObjectById(id as Id<_HasId>) as T;
 }
