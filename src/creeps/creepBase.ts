@@ -3,8 +3,8 @@ import { getBodyPartList } from '../utils';
 
 export default class CreepBase {
   private readonly role;
-  protected room;
-  protected spawns;
+  protected readonly room;
+  protected readonly spawns;
   protected readonly creeps;
 
   public constructor(room: Room, role: CreepRole) {

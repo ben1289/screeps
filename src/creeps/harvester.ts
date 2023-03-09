@@ -1,5 +1,5 @@
 import CreepBase from './creepBase';
-import { mySource, linksNearSource, containersNearSource } from '../store';
+import { sourceStore, containerStore, linkStore } from '../store';
 
 /**
  * 采集者
@@ -9,10 +9,13 @@ export default class Harvester extends CreepBase {
 
   public constructor(room: Room, maximum = 3) {
     super(room, 'harvester');
-    this.sources = mySource.get(room.name) ?? [];
+    this.sources = sourceStore.my.get(room.name) ?? [];
     let transportMode = true;
     for (const source of this.sources) {
-      transportMode = !(containersNearSource.has(source.id) || linksNearSource.has(source.id));
+      if (containerStore.nearSource.has(source.id) || linkStore.nearSource.has(source.id)) {
+        transportMode = false;
+        break;
+      }
     }
     if (transportMode) {
       this.generate(maximum);
@@ -28,14 +31,12 @@ export default class Harvester extends CreepBase {
    * @private
    */
   private run(transportMode: boolean): void {
-    for (let i = 0; i < this.creeps.length; i++) {
-      const creep = this.creeps[i];
-
+    for (const creep of this.creeps) {
       if (transportMode) {
         // 兼顾运输模式
         if (this.renewTick(creep)) continue;
 
-        if (!creep.memory.working && creep.store[RESOURCE_ENERGY] === 0) {
+        if (!creep.memory.working && creep.store.getUsedCapacity() === 0) {
           creep.memory.working = true;
         }
         if (creep.memory.working && creep.store.getFreeCapacity() === 0) {
@@ -49,29 +50,43 @@ export default class Harvester extends CreepBase {
         }
       } else {
         // 仅采集模式
-        const source = this.sources[i];
+        let source = creep.pos.findInRange(FIND_SOURCES, 1)[0];
+        if (!source) {
+          for (const src of this.sources) {
+            if (!sourceStore.harvesting.has(src.id)) {
+              source = src;
+              break;
+            }
+          }
+        } else if (creep.ticksToLive === 1) {
+          sourceStore.harvesting.delete(source.id);
+        }
+        if (!source) return;
 
         if (creep.store.getFreeCapacity() > 0) {
-          if (creep.harvest(source) === ERR_NOT_IN_RANGE) {
+          const harvestResult = creep.harvest(source);
+          if (harvestResult === OK) {
+            sourceStore.harvesting.add(source.id);
+          } else if (harvestResult === ERR_NOT_IN_RANGE) {
             creep.moveTo(source);
           }
         } else {
-          const link = (linksNearSource.get(source.id) ?? []).find(
-            linkNearSource => creep.store.getUsedCapacity() <= (linkNearSource.store.getFreeCapacity() ?? 0)
-          );
-          if (link) {
-            if (creep.transfer(link, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-              creep.moveTo(link);
+          const targetLink = linkStore.nearSource
+            .get(source.id)
+            ?.find(link => link.store.getFreeCapacity(RESOURCE_ENERGY) > 0);
+          if (targetLink) {
+            if (creep.transfer(targetLink, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+              creep.moveTo(targetLink);
             }
             return;
           }
 
-          const container = (containersNearSource.get(source.id) ?? []).find(
-            containerNearSource => creep.store.getUsedCapacity() <= (containerNearSource.store.getFreeCapacity() ?? 0)
-          );
-          if (container) {
-            if (creep.transfer(container, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-              creep.moveTo(container);
+          const targetContainer = containerStore.nearSource
+            .get(source.id)
+            ?.find(container => container.store.getFreeCapacity() ?? 0 > 0);
+          if (targetContainer) {
+            if (creep.transfer(targetContainer, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+              creep.moveTo(targetContainer);
             }
           }
         }
