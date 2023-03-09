@@ -1,40 +1,41 @@
-export default class Tower {
-  protected room;
-  protected towers: StructureTower[];
+import { roomStore, towerStore } from '../store';
 
-  public constructor(room: Room) {
-    this.room = room;
-    this.towers = room.find(FIND_MY_STRUCTURES, { filter: { structureType: STRUCTURE_TOWER } });
-  }
-
-  /**
-   * 启用攻击
-   */
-  public enableAttack(): void {
+/**
+ * 启用攻击
+ */
+function enableAttack(): void {
+  for (const room of roomStore.my) {
     const bodyTypes = [WORK, ATTACK, RANGED_ATTACK, HEAL, CLAIM];
     type BodyType = typeof bodyTypes extends [infer T] ? T : never;
-    const creeps = this.room.find(FIND_HOSTILE_CREEPS, {
+    const creeps = room.find(FIND_HOSTILE_CREEPS, {
       filter: creep => creep.body.findIndex(body => bodyTypes.includes(body.type as BodyType)) !== -1
     });
-    for (const tower of this.towers) {
+    const towers = towerStore.my.get(room.name) ?? [];
+    for (const tower of towers) {
       const closestCreep = tower.pos.findClosestByRange(creeps);
       if (closestCreep) {
         tower.attack(closestCreep);
       }
     }
   }
-
-  /**
-   * 启用治疗
-   */
-  public enableHeal(): void {
-    // TODO 治疗相关代码
-  }
-
-  /**
-   * 启用维修
-   */
-  public enableRepair(): void {
-    // TODO 维修相关代码
-  }
 }
+
+/**
+ * 启用治疗
+ */
+function enableHeal(): void {
+  // TODO 治疗相关代码
+}
+
+/**
+ * 启用维修
+ */
+function enableRepair(): void {
+  // TODO 维修相关代码
+}
+
+export default {
+  enableAttack,
+  enableHeal,
+  enableRepair
+};
